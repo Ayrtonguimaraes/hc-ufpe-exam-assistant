@@ -7,6 +7,7 @@ import { stemQuery } from "@/lib/stem"
 import { asksMedicationDecision, medicationReferral } from "@/lib/medication-policy"
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { parseFilter, classifyPreparo } from "@/lib/aggregate"
+import { restrictionsForQuestion } from "@/lib/service-restrictions"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 const exames = examesData as Exame[]
@@ -84,6 +85,13 @@ function buildResponse(
       reply: medicationReferral + (matched.length && matched.every(e => preparos.preparos[e.preparo_id].status === "pendente") ? " O preparo específico ainda não está cadastrado na base." : "") + `\n\nContato para confirmar: ${phones.join("; ") || geral.telefones.imagem_geral}.`,
       sources: matched.map(e => profile === "professional" ? { nome: e.nome, sigla: e.sigla } : { nome: e.nome }),
     }
+  }
+  // The user's own words point to a service restriction (weight, age, implant...): say it first.
+  // A picker click is generated text, not the user describing a situation.
+  const restricted = forced ? [] : restrictionsForQuestion(message, matched)
+  if (restricted.length) return {
+    reply: '**Atenção:**\n\n' + restricted.map(r => `- ${r.text}`).join('\n') + `\n\nEssas informações vêm da folha de orientações de ressonância do HC-UFPE e ainda precisam ser confirmadas pela equipe. Fale com o setor antes do exame: ${preparos.meta.orientacoes_gerais.telefones.tomografia_ressonancia}.`,
+    sources: [{ nome: 'Orientações de ressonância magnética (folha do setor)', evidence: restricted, evidenceStatus: 'documentary-only' }],
   }
   const intent = forced ? undefined : deterministicIntent(message) ?? (deterministicIntent(conversationQuery(message, history)) === "clarify" ? "clarify" : undefined)
   if (intent === 'missing') return {reply:'Não tenho um preparo específico cadastrado para um exame que não foi identificado no catálogo. Isso não significa que ele dispense preparo. Confirme com o setor antes do exame.\n\nContato para confirmar: ' + phoneForModalidade(parseFilter(message).modalidade ?? '') + '.', sources:[]}

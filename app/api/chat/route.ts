@@ -16,6 +16,7 @@ import { generateMockResponse } from "@/lib/mock-response"
 import { explicitlyNoPreparation } from "@/lib/preparation-policy"
 import { asksMedicationDecision } from "@/lib/medication-policy"
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
+import { restrictionsForQuestion } from "@/lib/service-restrictions"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -238,7 +239,7 @@ export async function POST(req: Request) {
       return Response.json({ ...result, mocked: true, reason: "picker-selection" })
     }
 
-    if (asksMedicationDecision(message) || deterministicIntent(message) || (!wantsAggregateList(message) && examModalityChoices(conversationQuery(message, history), exames).length > 0)) {
+    if (asksMedicationDecision(message) || restrictionsForQuestion(message, resolveExames(message, history)).length || deterministicIntent(message) || (!wantsAggregateList(message) && examModalityChoices(conversationQuery(message, history), exames).length > 0)) {
       const result = generateMockResponse(message, profile, history)
       return Response.json({ reply: result.reply, sources: result.sources, mocked: true, reason: asksMedicationDecision(message) ? "medication-policy" : "request-policy" })
     }

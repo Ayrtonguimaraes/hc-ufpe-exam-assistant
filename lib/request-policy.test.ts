@@ -22,7 +22,7 @@ it("responde documentos gerais sem exigir nome do exame", () => {
 })
 
 it("tomografia ou ressonância sem região pergunta a região em vez de listar exames arbitrários", () => {
-  for (const q of ["vou fazer uma tomografia", "quanto tempo demora uma tomografia?", "tenho marcapasso e vou fazer ressonância"]) {
+  for (const q of ["vou fazer uma tomografia", "quanto tempo demora uma tomografia?", "acompanhante pode entrar comigo na ressonância?"]) {
     const r = generateMockResponse(q, "patient")
     expect(r.reply, q).toMatch(/regi[aã]o do corpo/)
     expect(r.reply, q).not.toMatch(/Qual destes exames|CONDUTOS|ARTICULA/i)
