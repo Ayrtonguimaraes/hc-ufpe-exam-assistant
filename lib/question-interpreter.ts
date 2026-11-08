@@ -152,6 +152,7 @@ const TOPIC_CUE: Partial<Record<Topic, RegExp>> = {
   duracao: /\b(demora|dura|duracao|quanto tempo leva|leva quanto)\b/,
   acompanhante: /\bacompanhante/,
   resultado: /\b(resultado|laudo)\b/,
+  documentos: /\b(document\w*|levar|leva|levo|cartao|identidade|rg|cpf|pedido|guia|sus)\b/,
 }
 const plain = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
@@ -159,7 +160,7 @@ export function answerFromInterpretation(i: Interpretation, profile: Profile, hi
   const greet = (text: string) => (profile === "patient" && !history.length ? "Olá!\n\n" : "") + text + (profile === "patient" ? "\n\nSe tiver outra dúvida sobre o exame, pode perguntar. Estou à disposição!" : "")
   if (i.varios_exames && severalExamsInMessage(message)) return { reply: greet("Você mencionou mais de um exame. Vamos um de cada vez para eu não misturar as orientações: qual deles você quer ver primeiro? Se puder, copie o nome como está no pedido."), sources: [] }
   const cue = TOPIC_CUE[i.topico]
-  if (NOT_PREPARATION.includes(i.topico) && cue && !cue.test(plain(message))) i = { ...i, topico: "preparo" }
+  if ((NOT_PREPARATION.includes(i.topico) || i.topico === "documentos") && cue && !cue.test(plain(message))) i = { ...i, topico: "preparo" }
   if (NOT_PREPARATION.includes(i.topico)) return {
     reply: greet(`Não tenho essa informação cadastrada. O setor pode responder: ${phoneFor(i.modalidade)}.`),
     sources: [],
