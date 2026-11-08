@@ -219,9 +219,10 @@ export async function POST(req: Request) {
       profile: Profile
       history: ChatMessage[]
       examSigla?: string
+      examModalidade?: string
     }
 
-    const { message, profile = "patient", history = [], examSigla } = body
+    const { message, profile = "patient", history = [], examSigla, examModalidade } = body
     fallbackMessage = message
     fallbackProfile = profile
     fallbackHistory = history
@@ -231,7 +232,7 @@ export async function POST(req: Request) {
     }
 
     // Clique no seletor guiado: o exame já foi escolhido pelo usuário; não buscar de novo pelo texto.
-    const picked = typeof examSigla === "string" && examSigla ? exames.filter((e) => e.sigla === examSigla) : []
+    const picked = typeof examSigla === "string" && examSigla ? exames.filter((e) => e.sigla === examSigla && (!examModalidade || e.modalidade === examModalidade)) : []
     if (picked.length === 1 && !asksMedicationDecision(message)) {
       const result = generateMockResponse(message, profile, history, picked)
       return Response.json({ ...result, mocked: true, reason: "picker-selection" })
