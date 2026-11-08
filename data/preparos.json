@@ -30,13 +30,31 @@
       "titulo": "Tomografia computadorizada sem contraste e sem sedação",
       "orientacoes": "",
       "status": "pendente",
-      "fallback": "O preparo específico deste exame ainda não está cadastrado em nossa base. NÃO presuma que o exame dispensa preparo. Por favor, entre em contato com o setor de Tomografia/Ressonância pelo telefone (81) 2126 3873 para confirmar as orientações antes do dia do exame."
+      "fallback": "O preparo específico deste exame ainda não está cadastrado em nossa base. NÃO presuma que o exame dispensa preparo. Por favor, entre em contato com o setor de Tomografia/Ressonância pelo telefone (81) 2126 3873 para confirmar as orientações antes do dia do exame.",
+      "fact_ids": [
+        "tc-abdomen-fasting",
+        "tc-sedation-fasting",
+        "tc-abdomen-sedation-fasting-conflict",
+        "tc-entero-fasting",
+        "tc-entero-additional",
+        "tc-contrast-allergy",
+        "tc-contrast-hydration"
+      ]
     },
     "tc_contraste": {
       "titulo": "Tomografia computadorizada com contraste",
       "orientacoes": "",
       "status": "pendente",
-      "fallback": "O preparo específico deste exame ainda não está cadastrado em nossa base. Como envolve contraste, é IMPRESCINDÍVEL confirmar com o setor de Tomografia/Ressonância pelo telefone (81) 2126 3873, pois pode haver exigência de exame de creatinina recente, jejum e suspensão de medicações."
+      "fallback": "O preparo específico deste exame ainda não está cadastrado em nossa base. Como envolve contraste, é IMPRESCINDÍVEL confirmar com o setor de Tomografia/Ressonância pelo telefone (81) 2126 3873, pois pode haver exigência de exame de creatinina recente, jejum e suspensão de medicações.",
+      "fact_ids": [
+        "tc-abdomen-fasting",
+        "tc-sedation-fasting",
+        "tc-abdomen-sedation-fasting-conflict",
+        "tc-entero-fasting",
+        "tc-entero-additional",
+        "tc-contrast-allergy",
+        "tc-contrast-hydration"
+      ]
     },
     "rm_simples": {
       "titulo": "Ressonância magnética sem contraste e sem sedação",

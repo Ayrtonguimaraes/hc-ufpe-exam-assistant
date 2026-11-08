@@ -7,8 +7,17 @@ const ids=new Set()
 for(const fact of evidence.facts){
  if(ids.has(fact.id))throw new Error(`Fato duplicado: ${fact.id}`)
  ids.add(fact.id)
- if(!evidence.sources[fact.sourceId] || fact.validation!=='pending-udi' || !fact.locator || !fact.quote)throw new Error(`Evidência inválida: ${fact.id}`)
+ if(!evidence.sources[fact.sourceId] || fact.validation!=='pending-udi' || !fact.locator || !fact.quote || !fact.text.trim())throw new Error(`Evidência inválida: ${fact.id}`)
  if(!fact.appliesTo.length || fact.appliesTo.some(code=>!exams.some(exam=>exam.sigla===code)))throw new Error(`Aplicação ausente no catálogo: ${fact.id}`)
+}
+// Regras: a lista appliesTo deve ser exatamente o que a regra (modalidade + trechos do nome) produz no catálogo atual.
+const norm=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+for(const fact of evidence.facts){
+ for(const other of fact.supersedes??[])if(!ids.has(other))throw new Error(`Fato substituído inexistente: ${fact.id}/${other}`)
+ if(!fact.rule)continue
+ const computed=exams.filter(e=>e.modalidade===fact.rule.modality&&fact.rule.nameAll.every(t=>norm(e.nome).includes(t))&&!(fact.rule.nameNone??[]).some(t=>norm(e.nome).includes(t))).map(e=>e.sigla)
+ const listed=[...new Set(fact.appliesTo)].sort(), expected=[...new Set(computed)].sort()
+ if(JSON.stringify(listed)!==JSON.stringify(expected))throw new Error(`appliesTo de ${fact.id} não corresponde à regra: lista ${listed.length}, regra ${expected.length}. Regenerar a lista.`)
 }
 for(const [id,p] of Object.entries(preparations))for(const fact of p.fact_ids??[])if(!ids.has(fact))throw new Error(`Fato ausente: ${id}/${fact}`)
 const bindings=read('data/exam-preparation-associations.json').bindings

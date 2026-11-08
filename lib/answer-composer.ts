@@ -19,7 +19,8 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const phones = [...new Set(matched.map(e => /tomografia|ressonancia/.test(e.modalidade) ? phoneMap.tomografia_ressonancia : /ultrassonografia|densitometria/.test(e.modalidade) ? phoneMap.ultrassonografia_densitometria : /radiologia/.test(e.modalidade) ? phoneMap.raio_x_contrastado : phoneMap.imagem_geral))]
   const contact = `**Contato do setor:** ${phones.join('; ')}.`
   const ps = matched.map(e => data.preparos[e.preparo_id])
-  const pending = ps.every(p => p?.status === 'pendente')
+  // An exam is pending only if its group has no registered content AND no documentary fact applies to it.
+  const pending = ps.every((p, i) => p?.status === 'pendente' && !factsForExam(matched[i], p).length)
   const sedationUnknown = !/com sedacao|sem sedacao/.test(q) && matched.some(e => /com sedacao/.test(normalize(e.nome)))
   const contrastUnknown = !/com contraste|sem contraste/.test(q) && matched.some(e => /com contraste/.test(normalize(e.nome))) && matched.some(e => /sem contraste/.test(normalize(e.nome)))
   const options = [...new Set(matched.map(e => e.nome_usual))].map(name => `- ${name}`).join('\n')
@@ -50,6 +51,8 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
     sentences = sentences.filter(s => (/jeju/.test(asked) && /jeju/i.test(s)) || (/bexiga/.test(asked) && /bexiga/i.test(s)) || (/cheg|antecedencia/.test(asked) && /antecedencia|chegar|comparecer/i.test(normalize(s))))
     usedFacts = usedFacts.filter(f => sentences.includes(f.text))
   }
+  // Tomography: facts cover only some exams, so say when fasting is not registered instead of staying silent.
+  if (documented && !specificQuestion && matched.every(e => /^tc_/.test(e.preparo_id)) && !usedFacts.some(f => f.topic === 'fasting')) sentences.push('Não tenho o jejum deste exame cadastrado. Confirme com o setor.')
   if (documented) sources.forEach((source,i) => {
     source.evidence = factSets[i].filter(f => usedFacts.some(used => used.factId === f.factId))
     source.evidenceStatus = source.evidence.length ? 'documentary-only' : 'legacy-untraced'
