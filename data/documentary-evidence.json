@@ -441,7 +441,23 @@
       "validation": "pending-udi",
       "documentaryReview": "checked-2026-11-08",
       "modality": "tomografia_computadorizada",
-      "ruleNote": "Nome contém 'com contraste'."
+      "ruleNote": "Nome contém 'com contraste'.",
+      "trigger": {
+        "type": "terms",
+        "terms": [
+          "reacao alergica",
+          "reacao ao contraste",
+          "alergia a contraste",
+          "alergia ao contraste",
+          "alergico a contraste",
+          "alergico ao contraste",
+          "alergica a contraste",
+          "alergica ao contraste",
+          "alergia ao iodo do contraste"
+        ]
+      },
+      "triggerNote": "Dispara pela pergunta da pessoa, independente da interpretação do modelo. Alergia a frutos do mar não dispara (o documento diz que não indica antialérgico).",
+      "excludesExam": true
     },
     {
       "id": "tc-contrast-hydration",
@@ -805,7 +821,8 @@
         ]
       },
       "showWithExam": true,
-      "ruleNote": "Vale para toda ressonância."
+      "ruleNote": "Vale para toda ressonância.",
+      "excludesExam": true
     },
     {
       "id": "rm-age-limit",
@@ -1026,7 +1043,8 @@
         ]
       },
       "showWithExam": true,
-      "ruleNote": "Vale para toda ressonância."
+      "ruleNote": "Vale para toda ressonância.",
+      "excludesExam": true
     },
     {
       "id": "rm-hemochromatosis",
@@ -1244,7 +1262,8 @@
         ]
       },
       "showWithExam": true,
-      "ruleNote": "Vale para toda ressonância."
+      "ruleNote": "Vale para toda ressonância.",
+      "excludesExam": true
     },
     {
       "id": "rm-liver-elastography",
@@ -1462,7 +1481,8 @@
         ]
       },
       "showWithExam": false,
-      "ruleNote": "Não há exame de elastografia no catálogo; aplicado a toda ressonância para responder à pergunta."
+      "ruleNote": "Não há exame de elastografia no catálogo; aplicado a toda ressonância para responder à pergunta.",
+      "excludesExam": true
     },
     {
       "id": "rm-plexus",
@@ -1492,7 +1512,8 @@
         ]
       },
       "showWithExam": true,
-      "ruleNote": "Conflito entre folha e catálogo levado à UDI (PRO-10)."
+      "ruleNote": "Conflito entre folha e catálogo levado à UDI (PRO-10).",
+      "excludesExam": true
     },
     {
       "id": "rm-metal-implant",

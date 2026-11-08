@@ -7,7 +7,7 @@ import { stemQuery } from "@/lib/stem"
 import { asksMedicationDecision, medicationReferral } from "@/lib/medication-policy"
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { parseFilter, classifyPreparo } from "@/lib/aggregate"
-import { restrictionsForQuestion } from "@/lib/service-restrictions"
+import { restrictionsForQuestion, excludesExam } from "@/lib/service-restrictions"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 const exames = examesData as Exame[]
@@ -89,9 +89,15 @@ function buildResponse(
   // The user's own words point to a service restriction (weight, age, implant...): say it first.
   // A picker click is generated text, not the user describing a situation.
   const restricted = forced ? [] : restrictionsForQuestion(message, matched)
-  if (restricted.length) return {
-    reply: '**Atenção:**\n\n' + restricted.map(r => `- ${r.text}`).join('\n') + `\n\nEssas informações vêm da folha de orientações de ressonância do HC-UFPE e ainda precisam ser confirmadas pela equipe. Fale com o setor antes do exame: ${preparos.meta.orientacoes_gerais.telefones.tomografia_ressonancia}.`,
-    sources: [{ nome: 'Orientações de ressonância magnética (folha do setor)', evidence: restricted, evidenceStatus: 'documentary-only' }],
+  if (restricted.length) {
+  const attention = {
+    reply: '**Atenção:**\n\n' + restricted.map(r => `- ${r.text}`).join('\n') + `\n\nEssas informações vêm da folha de orientações de tomografia e ressonância do HC-UFPE e ainda precisam ser confirmadas pela equipe. Fale com o setor antes do exame: ${preparos.meta.orientacoes_gerais.telefones.tomografia_ressonancia}.`,
+    sources: [{ nome: 'Orientações de tomografia e ressonância (folha do setor)', evidence: restricted, evidenceStatus: 'documentary-only' as const }],
+  }
+  // Pregnancy or an implant does not rule the exam out: the notice comes first, then the exam guidance.
+  const composed = !excludesExam(restricted.map(r => r.factId)) && matched.length ? composeAnswer(conversationQuery(message, history), matched, preparos, profile, message) : null
+  if (composed) return { reply: attention.reply + '\n\n' + composed.reply.replace(/^Olá!\s*/, ''), sources: [...attention.sources, ...composed.sources] }
+  return attention
   }
   const intent = forced ? undefined : deterministicIntent(message) ?? (deterministicIntent(conversationQuery(message, history)) === "clarify" ? "clarify" : undefined)
   if (intent === 'missing') return {reply:'Não tenho um preparo específico cadastrado para um exame que não foi identificado no catálogo. Isso não significa que ele dispense preparo. Confirme com o setor antes do exame.\n\nContato para confirmar: ' + phoneForModalidade(parseFilter(message).modalidade ?? '') + '.', sources:[]}

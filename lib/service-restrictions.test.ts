@@ -59,3 +59,24 @@ it("gravidez em ressonância avisa do termo, sem dizer se é seguro", () => {
   expect(r).toMatch(/informe ao setor/i)
   expect(r).not.toMatch(/é seguro|sem risco|contraindicad/i)
 })
+
+it("reação alérgica a contraste em tomografia avisa a contraindicação pela própria pergunta", () => {
+  const r = say("já tive reação alérgica grave a contraste iodado. posso fazer tomografia com contraste?")
+  expect(r).toMatch(/contraindica[cç][aã]o/)
+  expect(r).not.toMatch(/regi[aã]o do corpo/)
+})
+
+it("alergia a camarão não dispara a contraindicação de contraste", () => {
+  expect(say("tomografia com contraste, sou alérgico a camarão, tem problema?")).not.toMatch(/\*\*Atenção:\*\*/)
+})
+
+it("gravidez com exame identificado: aviso primeiro e orientação do exame depois", () => {
+  const r = say("Estou grávida e farei ressonância sem contraste. Tem alguma exigência?")
+  expect(r.indexOf("termo")).toBeGreaterThan(-1)
+  expect(r).toMatch(/metal/)
+  expect(r.indexOf("termo")).toBeLessThan(r.indexOf("metal"))
+})
+
+it("peso acima do limite não traz preparo depois do aviso", () => {
+  expect(say("peso 130 kg, vou fazer ressonância de joelho sem contraste e sem sedação")).not.toMatch(/metal|30 minutos/)
+})
