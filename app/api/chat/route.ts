@@ -17,6 +17,7 @@ import { explicitlyNoPreparation } from "@/lib/preparation-policy"
 import { asksMedicationDecision } from "@/lib/medication-policy"
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { restrictionsForQuestion } from "@/lib/service-restrictions"
+import { interpretQuestion, answerFromInterpretation, MODALITY_CUE } from "@/lib/question-interpreter"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -237,6 +238,18 @@ export async function POST(req: Request) {
     if (picked.length === 1 && !asksMedicationDecision(message)) {
       const result = generateMockResponse(message, profile, history, picked)
       return Response.json({ ...result, mocked: true, reason: "picker-selection" })
+    }
+
+    // Free text: a language model interprets the question into validated fields; the catalog answers.
+    // Medication decisions, service restrictions and catalog listings keep their deterministic paths.
+    const directIntent = deterministicIntent(message)
+    // A body region that exists in several modalities, with no hint of the exam type: ask the modality deterministically.
+    const modalityUnknown = examModalityChoices(conversationQuery(message, history), exames).length > 0 && !MODALITY_CUE.test(normalize(message))
+    if (process.env.GROQ_API_KEY && !modalityUnknown && !asksMedicationDecision(message) && !restrictionsForQuestion(message, resolveExames(message, history)).length &&
+        !["count", "missing", "attributes", "documents"].includes(directIntent ?? "") && !wantsAggregateList(message) && !wantsListaRaiox(message) && !wantsFluxoRaiox(message)) {
+      const interpretation = await interpretQuestion(message, history)
+      const result = interpretation ? answerFromInterpretation(interpretation, profile, history, message) : null
+      if (result) return Response.json({ ...result, mocked: true, reason: "llm-interpretation", interpretation })
     }
 
     if (asksMedicationDecision(message) || restrictionsForQuestion(message, resolveExames(message, history)).length || deterministicIntent(message) || (!wantsAggregateList(message) && examModalityChoices(conversationQuery(message, history), exames).length > 0)) {

@@ -3,11 +3,16 @@ import { normalize } from './search'
 import type { EvidenceReference, Exame } from './types'
 
 type Trigger = { type: 'weight' | 'age' | 'terms'; above?: number; below?: number; terms?: string[] }
-type Restriction = { id: string; text: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; trigger?: Trigger; showWithExam?: boolean }
+type Restriction = { excludesExam?: boolean; id: string; text: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; trigger?: Trigger; showWithExam?: boolean }
 
-const restrictions = (registry.facts as Restriction[]).filter(f => f.topic === 'restriction')
+// Facts with a trigger fire from the user's own words; restrictions are also reminded with exams.
+const triggerable = (registry.facts as Restriction[]).filter(f => f.trigger)
+const restrictions = triggerable.filter(f => f.topic === 'restriction')
 
-const MRI = /\b(ressonancia|resonancia|rm|ressonancias)\b/
+const CONTEXT: Record<string, RegExp> = {
+  ressonancia_magnetica: /\b(ressonancia|resonancia|rm|ressonancias)\b/,
+  tomografia_computadorizada: /\b(tomografia|tomo|tc|angiotomografia|tomografias)\b/,
+}
 
 function triggered(t: Trigger, q: string): boolean {
   if (t.terms?.some(term => q.includes(normalize(term)))) return true
@@ -26,12 +31,16 @@ function asEvidence(r: Restriction): EvidenceReference {
   return { factId: r.id, text: r.text, topic: r.topic, sourceTitle: source.title, sourceHash: source.sha256, locator: r.locator, quote: r.quote, validation: 'pending-udi' }
 }
 
-/** Service restrictions the user's own words point to, in an MRI conversation. */
+/** True when a triggered fact means the exam is not done (weight, age, contraindication...), so no preparation should follow it. */
+export function excludesExam(factIds: string[]): boolean {
+  return triggerable.some(f => f.excludesExam && factIds.includes(f.id))
+}
+
+/** Facts the user's own words point to (MRI restrictions, contrast allergy in CT), in the matching modality context. */
 export function restrictionsForQuestion(question: string, exams: Exame[] = []): EvidenceReference[] {
   const q = normalize(question)
-  const mriContext = MRI.test(q) || (exams.length > 0 && exams.every(e => e.modalidade === 'ressonancia_magnetica'))
-  if (!mriContext) return []
-  return restrictions.filter(r => r.trigger && triggered(r.trigger, q)).map(asEvidence)
+  const inContext = (modality: string) => CONTEXT[modality]?.test(q) || (exams.length > 0 && exams.every(e => e.modalidade === modality))
+  return triggerable.filter(r => inContext(r.modality) && triggered(r.trigger!, q)).map(asEvidence)
 }
 
 /** Restrictions to remind whenever an MRI exam is answered (e.g. weight and age limits). */
