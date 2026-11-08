@@ -2,6 +2,7 @@ import { factsForExam } from './documentary-evidence'
 import { normalize } from './search'
 import { arrivalInstruction } from './preparation-policy'
 import { REGION_TERMS } from './request-policy'
+import { restrictionsForExams } from './service-restrictions'
 import type { Exame, PreparosFile, Profile, Source } from './types'
 
 const medication = /medica[cç]|comprimido|gotas|\bmg\b|tomar|utilizar luftal|simeticona|polaramine|norfloxacino|suspens|suspens|suspend|suspensa/i
@@ -73,6 +74,8 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   if (documented) blocks.push(profile === 'patient' ? '**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital e não representam o preparo completo. Confirme com o setor antes do exame, inclusive sobre medicamentos, se houver.' : '**Situação da informação:** trechos localizados no documento recebido, com validação da UDI pendente. Estas informações são parciais; confirme o preparo completo com o setor, inclusive orientações adicionais e sobre medicamentos, quando houver.')
   else if (p.status === 'parcial') blocks.push('O cadastro é parcial. Confirme com o setor as orientações não registradas.')
   else blocks.push('**Origem da informação:** cadastro herdado do projeto; a fonte documental deste conteúdo ainda não foi reconciliada.')
+  const serviceLimits = specificQuestion ? [] : restrictionsForExams(matched)
+  if (serviceLimits.length) blocks.push('**Antes de vir:**\n\n' + serviceLimits.map(r => `- ${r.text}`).join('\n'))
   if (profile === 'professional') blocks.push(matched.map(e => `${e.nome} (código: ${e.sigla})`).join('\n'))
   if (profile === 'patient') {
     blocks.push('**O que levar:**\n\n- Documento de identificação com foto\n- Cartão do SUS\n- Cartão do Hospital\n- Pedido médico original\n- Exames anteriores relacionados, se houver')
