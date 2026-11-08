@@ -35,7 +35,7 @@ test("seletor lista todos os 814 exames, inclusive os pendentes", async () => {
 })
 
 test("exame pendente escolhido no seletor informa que não há preparo e indica o telefone", async () => {
-  const e = all.find((x) => P[x.preparo_id].status === "pendente" && x.modalidade === "tomografia_computadorizada")!
+  const e = all.find((x) => x.sigla === "TCTX")!
   const b = await ask(e)
   expect(b.reply).toMatch(/n[aã]o tenho o preparo espec[ií]fico cadastrado/i)
   expect(b.reply).toMatch(/\(81\) 2126 3873/)

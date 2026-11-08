@@ -15,11 +15,14 @@ it('densitometria responde apenas jejum e chegada, uma vez', () => {
  expect((r.reply.match(/uma hora/g)||[])).toHaveLength(1)
  expect(r.reply).not.toMatch(/suspens|suspend|cálcio|30 minutos|48h/i)
 })
-it('TC desconhecida não inventa jejum e explicita sedação', () => {
- const r=generateMockResponse('Vou fazer tomografia de tórax sem contraste. Qual o jejum?', 'patient')
- expect(r.reply).toContain('cadastrado')
- expect(r.reply).toContain('com ou sem sedação')
- expect(r.reply).not.toMatch(/NÃO presuma|[0-9]+\s*h/)
+it('TC de tórax sem contraste: pergunta a sedação e, sem sedação, não inventa jejum', () => {
+ const q='Vou fazer tomografia de tórax sem contraste. Qual o jejum?'
+ const first=generateMockResponse(q, 'patient')
+ expect(first.reply).toContain('com ou sem sedação')
+ expect(first.reply).not.toMatch(/[0-9]+\s*h/)
+ const second=generateMockResponse('Sem sedação.', 'patient', [{role:'user',content:q},{role:'assistant',content:first.reply}])
+ expect(second.reply).toContain('cadastrado')
+ expect(second.reply).not.toMatch(/NÃO presuma|[0-9]+\s*h/)
 })
 it('com chave mantém renderização restrita sem chamar o modelo', async () => {
  const old=process.env.CLAUDE_API_KEY; process.env.CLAUDE_API_KEY='not-a-real-key'
