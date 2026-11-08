@@ -1,6 +1,7 @@
 import { factsForExam } from './documentary-evidence'
 import { normalize } from './search'
 import { arrivalInstruction } from './preparation-policy'
+import { REGION_TERMS } from './request-policy'
 import type { Exame, PreparosFile, Profile, Source } from './types'
 
 const medication = /medica[cç]|comprimido|gotas|\bmg\b|tomar|utilizar luftal|simeticona|polaramine|norfloxacino|suspens|suspens|suspend|suspensa/i
@@ -27,9 +28,13 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const different = new Set(matched.map(e => e.preparo_id)).size > 1
   if (pending && matched.some(exam => exam.association_review?.status === 'needs-review')) return {reply:'A associação deste procedimento com as orientações disponíveis ainda precisa de revisão. Não tenho um preparo específico documentado para apresentar com segurança; confirme com o setor antes do exame.\n\n' + contact,sources}
   if (pending) return {reply:`Não tenho o preparo específico cadastrado para informar ${/jeju/.test(q) ? 'o jejum deste exame' : 'as orientações deste exame'}. Isso não significa que o exame dispense preparo. Confirme com o setor antes do exame.${sedationUnknown ? '\n\nO pedido informa com ou sem sedação? Essa informação ajuda a identificar a variante.' : ''}\n\n${contact}`,sources}
+  // CT/MRI asked without a body region: the top search hits are arbitrary, so ask the region instead of listing them.
+  const regionMissing = matched.length > 1 && matched.every(e => /tomografia|ressonancia/.test(e.modalidade)) && !REGION_TERMS.test(normalize(requestedMessage)) && !REGION_TERMS.test(q)
+  const askRegion = {reply:'Para identificar o exame, preciso saber a região do corpo que consta no pedido (por exemplo: abdome, tórax, crânio, coluna ou joelho). Se tiver o pedido em mãos, pode copiar o nome do exame aqui.\n\n' + contact, sources: []}
+  if (regionMissing && (sedationUnknown || contrastUnknown || different)) return askRegion
   if (sedationUnknown || contrastUnknown || different) return {reply:`Preciso confirmar qual exame consta no pedido antes de detalhar o preparo. ${sedationUnknown ? 'É com ou sem sedação? ' : ''}${contrastUnknown ? 'É com ou sem contraste? ' : ''}${different ? 'Qual destes exames consta no pedido?\n\n' + options : ''}\n\n${contact}`,sources}
   const factSets = matched.map((exam, i) => factsForExam(exam, ps[i]))
-  if (new Set(factSets.map(fs => fs.map(f => f.factId).sort().join(','))).size > 1) return {reply:'Encontrei variantes com informações diferentes. Qual delas consta no pedido?\n\n' + options + '\n\n' + contact,sources}
+  if (new Set(factSets.map(fs => fs.map(f => f.factId).sort().join(','))).size > 1) return regionMissing ? askRegion : {reply:'Encontrei variantes com informações diferentes. Qual delas consta no pedido?\n\n' + options + '\n\n' + contact,sources}
   const p = ps[0]
   if (!p) return null
   const specificQuestion = /jeju|bexiga|antecedencia|quanto tempo.*cheg|com quanto tempo/.test(asked) && !/qual.*preparo|como.*prepar/.test(asked)

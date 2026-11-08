@@ -20,3 +20,16 @@ it("esclarece RM genérica sem indicar horas", () => {
 it("responde documentos gerais sem exigir nome do exame", () => {
   expect(generateMockResponse("Que documentos preciso levar para meu exame?", "patient").reply).toContain("Cartão do SUS")
 })
+
+it("tomografia ou ressonância sem região pergunta a região em vez de listar exames arbitrários", () => {
+  for (const q of ["vou fazer uma tomografia", "quanto tempo demora uma tomografia?", "tenho marcapasso e vou fazer ressonância"]) {
+    const r = generateMockResponse(q, "patient")
+    expect(r.reply, q).toMatch(/regi[aã]o do corpo/)
+    expect(r.reply, q).not.toMatch(/Qual destes exames|CONDUTOS|ARTICULA/i)
+  }
+})
+
+it("com região informada não pede a região de novo", () => {
+  const r = generateMockResponse("tomografia de abdome precisa de jejum?", "patient")
+  expect(r.reply).not.toMatch(/regi[aã]o do corpo/)
+})
