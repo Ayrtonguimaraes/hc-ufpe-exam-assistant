@@ -138,7 +138,7 @@ function buildResponse(
     return { reply, sources: [] }
   }
 
-  const composed = composeAnswer(conversationQuery(message, history), matched, preparos, profile, message)
+  const composed = composeAnswer(forced ? `${conversationQuery(message, history)} ${forced[0].nome}` : conversationQuery(message, history), matched, preparos, profile, message)
   if (composed) return fluxo ? { reply: composed.reply + "\n\n" + fluxo.reply, sources: [...composed.sources, ...fluxo.sources] } : composed
   return {reply: "Não consegui identificar uma orientação compatível. Confirme o nome completo do exame com a UDI.", sources: []}
 }

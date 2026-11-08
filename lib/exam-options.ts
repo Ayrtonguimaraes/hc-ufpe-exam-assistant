@@ -270,14 +270,13 @@ function toExamOption(e: Exame): ExamOption {
   }
 }
 
-// Só expomos exames que têm orientação de preparo (ok/parcial).
-// Exames "pendente" não têm conteúdo, então não viram botão — evita
-// que o paciente clique e chegue num beco sem orientação.
+// Todos os exames do catálogo aparecem, inclusive os sem preparo cadastrado:
+// a resposta deles informa que o preparo não está cadastrado e indica o telefone
+// do setor, em vez de esconder o exame e deixar o paciente sem caminho.
 export function getExamsForModalidade(modalidade: string): ExamOption[] {
   return exames
     .filter((e) => e.modalidade === modalidade)
     .map(toExamOption)
-    .filter((ex) => ex.status !== "pendente")
 }
 
 export function getModalidades(): ModalidadeOption[] {
@@ -298,6 +297,5 @@ export function getModalidades(): ModalidadeOption[] {
         singleExam: list.length === 1 ? list[0] : undefined,
       }
     })
-    // Modalidade sem nenhum exame com preparo some do passo 1.
     .filter((m) => m.count > 0)
 }

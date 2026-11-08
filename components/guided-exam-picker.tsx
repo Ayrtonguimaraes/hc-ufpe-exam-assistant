@@ -69,7 +69,7 @@ export function GuidedExamPicker({
   onSubmit,
   onClose,
 }: {
-  onSubmit: (query: string, sigla?: string) => void
+  onSubmit: (query: string, sigla?: string, modalidade?: string) => void
   onClose?: () => void
 }) {
   const [step, setStep] = useState<Step>("modality")
@@ -97,7 +97,7 @@ export function GuidedExamPicker({
 
   function handleModalidade(m: string, single?: { query: string; sigla: string }) {
     if (single) {
-      onSubmit(single.query, single.sigla)
+      onSubmit(single.query, single.sigla, m)
       return
     }
     setModalidade(m)
@@ -108,7 +108,7 @@ export function GuidedExamPicker({
   function handleBase(g: ExamGroup) {
     // Grupo sem variantes divergentes → vai direto ao único exame.
     if (g.axes.length === 0) {
-      onSubmit(g.variants[0].exam.query, g.variants[0].exam.sigla)
+      onSubmit(g.variants[0].exam.query, g.variants[0].exam.sigla, modalidade ?? undefined)
       return
     }
     setGroup(g)
@@ -126,7 +126,7 @@ export function GuidedExamPicker({
       group.axes.every((ax) => next[ax] === undefined || v[ax] === next[ax])
     )
     if (remaining.length === 1) {
-      onSubmit(remaining[0].exam.query, remaining[0].exam.sigla)
+      onSubmit(remaining[0].exam.query, remaining[0].exam.sigla, modalidade ?? undefined)
     }
   }
 
