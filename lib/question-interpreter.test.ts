@@ -56,3 +56,9 @@ it("assunto fora do preparo sem palavra correspondente vira preparo; vazio com t
   expect(answerFromInterpretation({ ...base, topico: "agendamento" }, "patient", [], "vou bater uma chapa do pulmão")!.reply).toMatch(/n[aã]o exige preparo/)
   expect(answerFromInterpretation({ ...base, modalidade: null, exame: null, topico: "preparo" }, "patient", [], "preparo para ressonância de dragão de komodo")).toBeNull()
 })
+
+it("assunto documentos sem palavra correspondente vira preparo", () => {
+  const base = { modalidade: "radiologia_convencional" as const, exame: "tórax", contraste: null, sedacao: null, lado: null, varios_exames: false }
+  expect(answerFromInterpretation({ ...base, topico: "documentos" }, "patient", [], "vou bater uma chapa do pulmão, precisa de alguma coisa?")!.reply).toMatch(/n[aã]o exige preparo/)
+  expect(answerFromInterpretation({ ...base, topico: "documentos" }, "patient", [], "raio x do tórax, quais documentos levo?")!.reply).toMatch(/O que levar/)
+})
