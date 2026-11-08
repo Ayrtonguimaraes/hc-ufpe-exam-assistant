@@ -32,7 +32,7 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const p = ps[0]
   if (!p) return null
   const specificQuestion = /jeju|bexiga|antecedencia|quanto tempo.*cheg|com quanto tempo/.test(asked) && !/qual.*preparo|como.*prepar/.test(asked)
-  if (matched.some(e => e.preparo_id === 'rm_contraste') && (!specificQuestion || /jeju/.test(asked))) return {
+  if (matched.some(e => e.preparo_id === 'rm_contraste') && /jeju/.test(asked)) return {
     reply: 'O cadastro herdado contém orientações de jejum que dependem do tipo de ressonância, mas a fonte dessas condições ainda não foi reconciliada. Não consigo confirmar o tempo de jejum aplicável ao seu exame. Confirme com o setor antes do exame, informando a região, o contraste e a sedação constantes no pedido.\n\n' + contact,
     sources,
   }
@@ -42,7 +42,10 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   }
   const documented = !!p.fact_ids?.length
   let usedFacts = factSets[0] ?? []
+  // RM com contraste: as condições de jejum do cadastro herdado não foram reconciliadas; as demais instruções não medicamentosas podem ser mostradas.
+  const mriContrast = matched.some(e => e.preparo_id === 'rm_contraste')
   let sentences = documented ? usedFacts.map(f => f.text) : safeSentences(p.orientacoes)
+  if (mriContrast) sentences = sentences.filter(s => !/jeju/i.test(s))
   if (specificQuestion) {
     sentences = sentences.filter(s => (/jeju/.test(asked) && /jeju/i.test(s)) || (/bexiga/.test(asked) && /bexiga/i.test(s)) || (/cheg|antecedencia/.test(asked) && /antecedencia|chegar|comparecer/i.test(normalize(s))))
     usedFacts = usedFacts.filter(f => sentences.includes(f.text))
@@ -56,6 +59,7 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   if (!sentences.length) sentences.push(/bexiga/.test(asked) ? 'Não tenho uma orientação específica sobre bexiga cadastrada para este exame. Isso não permite concluir que esse cuidado seja dispensado. Confirme com o setor.' : 'Não tenho essa informação específica registrada. Confirme com o setor.')
   if (profile === 'patient') sentences = sentences.filter(s => !/aghu|apac|ubs|secretaria de saude/i.test(normalize(s)))
   const blocks = [profile === 'patient' ? `Olá! Para **${(matched.length === 1 ? matched[0].nome_usual : p.titulo).toLowerCase()}**, estas são as informações cadastradas:` : `**${p.titulo}**`, sentences.map(s => /antecedencia|chegar ao servico/i.test(normalize(s)) ? `**Quando chegar:** ${s.replace(/^Comparecer/, 'Compareça')}` : /jejum/i.test(s) ? `**Jejum:** ${s}` : `- ${s}`).join('\n\n')]
+  if (mriContrast && !specificQuestion) blocks.splice(1, 0, '**Jejum:** o cadastro herdado tem condições de jejum que dependem do tipo de ressonância e ainda não foram reconciliadas. Não consigo confirmar o tempo de jejum do seu exame; confirme com o setor.')
   if (!documented && !specificQuestion && p.observacoes) blocks.push(safeSentences(p.observacoes).filter(s => profile !== 'patient' || !/aghu|apac|ubs|secretaria de saude/.test(normalize(s))).join(' '))
   if (medication.test(p.orientacoes + ' ' + (p.observacoes ?? '')) && !specificQuestion) blocks.push('**Medicamentos:** orientações sobre medicamentos precisam ser confirmadas com o médico ou com a UDI; não altere seu tratamento com base no chat.')
   if (documented) blocks.push(profile === 'patient' ? '**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital e não representam o preparo completo. Confirme com o setor antes do exame, inclusive sobre medicamentos, se houver.' : '**Situação da informação:** trechos localizados no documento recebido, com validação da UDI pendente. Estas informações são parciais; confirme o preparo completo com o setor, inclusive orientações adicionais e sobre medicamentos, quando houver.')
