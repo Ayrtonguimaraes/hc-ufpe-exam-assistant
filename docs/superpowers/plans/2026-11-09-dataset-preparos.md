@@ -41,6 +41,7 @@
 
 **Files:**
 - Create: `data/conflitos.json`
+- Modify: `data/documentary-evidence.json`
 - Modify: `scripts/verify-documentary-evidence.mjs`
 - Create: `scripts/verify-documentary-evidence.test.mjs`
 
@@ -64,7 +65,9 @@ Extrair a validação atual de fatos e associações para a função exportada. 
 
 - [ ] **Step 4: Criar `data/conflitos.json` com as decisões pendentes**
 
-Adicionar três registros `pending-udi`, todos vinculados a `PRO-34`:
+Primeiro, registrar as duas fontes escaneadas em `data/documentary-evidence.json`: `Exames escaneados.pdf` com SHA-256 `146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10` e `Scanned 9 Nov 2026 at 180448.pdf` com SHA-256 `7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0`. Ambas devem ter aprovação clínica não demonstrada. Não adicionar fatos nesta tarefa.
+
+Depois, adicionar três registros `pending-udi` em `data/conflitos.json`, todos vinculados a `PRO-34`:
 
 - `rx-enema-opaco-pediatrico-preparo`: contrapõe a folha de criança a partir de 7 anos, com bisacodil e jejum de 6h, à folha que diz que criança não precisa de preparo; afeta `rx_enema_opaco_crianca` e `rx_enema_opaco_adulto`.
 - `us-abdomen-preparo-e-contato`: contrapõe jejum de 4–6h e telefone 3884 ao jejum de 8h, simeticona, água/bexiga e telefone 3898; afeta `us_abdômen` e `us_pelvica_vias_urinarias` somente como possível escopo a decidir.
@@ -107,8 +110,6 @@ Run: `npm test -- lib/documentary-evidence.test.ts`
 Expected: FAIL porque os novos fatos e vínculos ainda não existem.
 
 - [ ] **Step 3: Adicionar fontes e fatos em `data/documentary-evidence.json`**
-
-Registrar `Exames escaneados.pdf` com SHA-256 `146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10` e `Scanned 9 Nov 2026 at 180448.pdf` com SHA-256 `7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0`; ambas devem indicar aprovação clínica não demonstrada.
 
 Adicionar somente fatos confirmados pelas folhas e sem conflito: jejum de 6h para esôfago (`RXESO`) e trânsito intestinal (`RXTDE`, `RXTIN`); para urografia (`RXUR1`, `RXUR4`) e uretrocistografia (`RXURE`, `RXURP`), registrar que há um preparo documentado que envolve medicamento e exige confirmação com a UDI, sem transcrever medicamento, dose ou cronograma. Cada fato recebe página, trecho literal, `validation: "pending-udi"` e modalidade `radiologia_convencional`.
 
