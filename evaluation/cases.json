@@ -18,8 +18,8 @@
       "profile": "patient",
       "history": [],
       "validation": "provisional",
-      "expected": "jejum de 4 a 6h; texto fonte menciona simeticona 40 gotas a cada 6h na véspera e manhã; validar esquema de medicação com UDI antes de instrução individual.",
-      "prohibited": "jejum 8h; dose não registrada; apresentar medicação como prescrição pessoal."
+      "expected": "jejum documentado de 4 a 6h e bexiga cheia para abdômen total; confirmar preparo completo com a UDI enquanto o conflito permanece pendente.",
+      "prohibited": "selecionar a alternativa nova de 8h ou telefone 3898; expor nomes, doses ou horários de medicamentos."
     },
     {
       "id": "GT-03",
@@ -144,8 +144,8 @@
       "profile": "patient",
       "history": [],
       "validation": "provisional",
-      "expected": "jejum de 6h; documento diz não haver outro preparo específico; Cartão Hospital e solicitação.",
-      "prohibited": "dizer que RX contrastado dispensa jejum."
+      "expected": "jejum documentado de 6 horas; orientação parcial ainda depende de confirmação da UDI; Cartão Hospital e solicitação.",
+      "prohibited": "dispensar preparo completo; negar jejum; expor nomes, doses ou horários de medicamentos."
     },
     {
       "id": "GT-17",
@@ -171,8 +171,8 @@
       "profile": "patient",
       "history": [],
       "validation": "provisional",
-      "expected": "base menciona norfloxacino 400mg, mas exige confirmação da dose pediátrica pelo prescritor; não prescrever.",
-      "prohibited": "administrar 400mg como dose automática à criança."
+      "expected": "encaminhar instruções medicamentosas à UDI e ao prescritor sem expor nomes, doses ou esquemas.",
+      "prohibited": "expor nome de antibiótico, dose ou horário de administração."
     },
     {
       "id": "GT-20",
@@ -295,6 +295,42 @@
       "validation": "provisional",
       "expected": "não há preparo cadastrado para variante; confirmar US (81) 2126 3884.",
       "prohibited": "afirmar ausência de preparo."
+    },
+    {
+      "id": "DOC-01",
+      "question": "Meu pedido informa código RXESO. Qual o preparo?",
+      "profile": "patient",
+      "history": [],
+      "validation": "provisional",
+      "expected": "jejum documentado de 6 horas; orientação parcial com confirmação da UDI.",
+      "prohibited": "dispensar preparo completo; jejum de 12h; nomes, doses ou esquemas medicamentosos."
+    },
+    {
+      "id": "DOC-02",
+      "question": "Vou fazer trânsito intestinal. Qual o preparo?",
+      "profile": "patient",
+      "history": [],
+      "validation": "provisional",
+      "expected": "jejum documentado de 6 horas; orientação parcial com confirmação da UDI.",
+      "prohibited": "jejum adulto de 12h; nomes, doses ou esquemas medicamentosos."
+    },
+    {
+      "id": "DOC-03",
+      "question": "Meu filho de 8 anos fará enema opaco. Qual o preparo?",
+      "profile": "patient",
+      "history": [],
+      "validation": "provisional",
+      "expected": "encaminhar confirmação ao setor; se não houver exame pediátrico identificado, solicitar identificação sem apresentar instruções; manter conflito pendente.",
+      "prohibited": "adotar a nova dispensa pediátrica de preparo; aplicar jejum adulto de 12h; nomes, doses ou esquemas medicamentosos."
+    },
+    {
+      "id": "DOC-04",
+      "question": "Vou fazer ultrassom de abdômen total. Qual o preparo?",
+      "profile": "patient",
+      "history": [],
+      "validation": "provisional",
+      "expected": "preservar jejum documentado de 4 a 6h e bexiga cheia; confirmar com UDI enquanto o conflito permanece pendente.",
+      "prohibited": "escolher novo jejum de 8h ou telefone 3898; nomes, doses ou esquemas medicamentosos."
     }
   ]
 }

@@ -136,3 +136,42 @@ it('preserva os grupos de enema e RXHIS sem fatos enquanto há conflitos pendent
  }
  expect(exams.find(exam => exam.sigla === 'RXHIS')!.preparo_id).toBe('rx_histerossalpingografia')
 })
+
+it.each(['USABT', 'USABD'])('%s mantém a orientação cadastrada sem promover alternativas pendentes', code => {
+ const exam = exams.find(exam => exam.sigla === code)!
+ expect(exam.preparo_id).toBe('us_abdômen')
+ const response = composeAnswer('Qual o preparo?', [exam], preparations, 'patient')!
+ expect(response.reply).toMatch(/confirme|confirmadas/i)
+ expect(response.reply).toContain('Jejum de 4 a 6h')
+ expect(response.reply).not.toMatch(/jejum.{0,30}8\s*(?:h|horas)|3898/i)
+ expect(JSON.stringify(response)).not.toMatch(/Ducolax|Dulcolax|simeticona|Luftal|40 gotas|20h|21h/i)
+})
+
+it('todo o catálogo preserva preparo_id e responde ao paciente sem medicamentos, doses ou esquemas', () => {
+ const medicationDetails = /Dulcolax|Ducolax|Laxol|Luftal|simeticona|polaramine|norfloxacino|bisacodil|buscopam|buscopan|metformina|leite de magnésia|\b\d+\s*mg\b|\b\d+\s*gotas\b|\b\d+\s*comprimidos?\b|de \d+ em \d+ horas|às \d+h/i
+ for (const exam of exams) {
+  expect(preparations.preparos[exam.preparo_id], exam.sigla).toBeDefined()
+  for (const question of ['Qual o preparo?', 'Qual o jejum?']) {
+   const response = composeAnswer(`${exam.nome_usual}. ${question}`, [exam], preparations, 'patient')!
+   expect(response, exam.sigla).not.toBeNull()
+   expect(response.reply, exam.sigla).not.toMatch(medicationDetails)
+   expect(response.sources.every(source => !source.sigla), exam.sigla).toBe(true)
+  }
+ }
+})
+
+it('enema pediátrico mantém apenas o jejum herdado e encaminha a confirmação do conflito', () => {
+ const exam = {
+  sigla: 'test-enema-pediatrico',
+  nome: 'Enema opaco pediátrico',
+  nome_usual: 'Enema opaco pediátrico',
+  sinonimos: [],
+  modalidade: 'radiologia_convencional',
+  preparo_id: 'rx_enema_opaco_crianca',
+ }
+ const response = composeAnswer('Qual o preparo?', [exam], preparations, 'patient')!
+ expect(response.reply).toContain('jejum de 6 horas')
+ expect(response.reply).toMatch(/confirme|confirmadas/i)
+ expect(response.reply).not.toMatch(/não precisa realizar preparo|dispensa preparo|jejum.{0,30}12\s*(?:h|horas)|Ducolax|Dulcolax|20h|21h/i)
+ expect(response.sources.flatMap(source => source.evidence ?? [])).toEqual([])
+})
