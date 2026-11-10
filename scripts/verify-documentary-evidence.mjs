@@ -69,6 +69,10 @@ export function validateDocumentaryEvidence({ evidence, preparations, exams, con
           !Object.hasOwn(evidence.sources, alternative.sourceId)) {
         throw new Error(`Alternativa de conflito inválida: ${conflict.id}`)
       }
+      const hash = evidence.sources[alternative.sourceId]?.sha256
+      if (typeof hash !== 'string' || !/^[a-f0-9]{64}$/i.test(hash)) {
+        throw new Error(`SHA-256 de fonte de conflito inválido: ${conflict.id}/${alternative.sourceId}`)
+      }
     }
     if (conflict.status === 'resolvido' && (!hasText(conflict.decision) || !hasText(conflict.resolvedAt))) {
       throw new Error(`Resolução de conflito incompleta: ${conflict.id}`)

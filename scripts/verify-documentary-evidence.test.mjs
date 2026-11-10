@@ -3,7 +3,7 @@ import { validateDocumentaryEvidence } from './verify-documentary-evidence.mjs'
 
 function fixture() {
   return {
-    evidence: { sources: { scan: { clinicalApproval: 'not-demonstrated' } }, facts: [] },
+    evidence: { sources: { scan: { clinicalApproval: 'not-demonstrated', sha256: '146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10' } }, facts: [] },
     preparations: { prep: {} },
     exams: [],
     conflicts: {
@@ -25,6 +25,28 @@ function fixture() {
 describe('validação documental de conflitos', () => {
   it('aceita um conflito pendente com fontes e preparos conhecidos', () => {
     expect(validateDocumentaryEvidence(fixture())).toBeUndefined()
+  })
+
+  it.each([
+    ['ausente', undefined],
+    ['vazio', ''],
+    ['curto', 'abc123'],
+    ['longo', 'a'.repeat(65)],
+    ['não hexadecimal', 'g'.repeat(64)],
+    ['tipo inválido', 123],
+  ])('rejeita hash de fonte %s', (_name, hash) => {
+    const input = fixture()
+    input.evidence.sources.scan.sha256 = hash
+    expect(() => validateDocumentaryEvidence(input)).toThrow(/SHA-256/)
+  })
+
+  it.each([
+    '146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10',
+    '146D1FB27928C0298CAF345CE15201E7C48E9A720AD5FF19863F736F9B140D10',
+  ])('aceita hash SHA-256 hexadecimal válido %s', hash => {
+    const input = fixture()
+    input.evidence.sources.scan.sha256 = hash
+    expect(() => validateDocumentaryEvidence(input)).not.toThrow()
   })
 
   it('aceita resolução com decisão e data registradas', () => {
