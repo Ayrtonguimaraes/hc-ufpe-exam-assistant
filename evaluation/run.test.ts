@@ -19,13 +19,13 @@ test("as regras detectam contradições e omissões representativas", () => {
   const dose = rules["GT-19"].find(r => r.forbidden)!
   expect(new RegExp(dose.pattern).test(normalized("Norfloxacino 400 mg"))).toBe(true)
   expect(new RegExp(dose.pattern).test(normalized("Confirme a dose com o médico"))).toBe(false)
-  expect(dataset.cases).toHaveLength(32)
-  expect(new Set(dataset.cases.map(c => c.id)).size).toBe(32)
+  expect(dataset.cases).toHaveLength(36)
+  expect(new Set(dataset.cases.map(c => c.id)).size).toBe(36)
   expect(dataset.cases.every(c => c.profile && c.question && c.expected && c.prohibited && rules[c.id])).toBe(true)
   expect(Object.values(expectedPreparos).every(id => id in preparos.preparos)).toBe(true)
 })
 
-test("registra os 32 casos pela API real sem navegador", async () => {
+test("registra os casos pela API real sem navegador", async () => {
   const mode = process.env.EVAL_MODE ?? "fallback"
   if (!["fallback", "llm"].includes(mode)) throw new Error("EVAL_MODE deve ser fallback ou llm")
   const key = process.env.CLAUDE_API_KEY
@@ -64,10 +64,12 @@ test("registra os 32 casos pela API real sem navegador", async () => {
   const report = { generatedAt: new Date().toISOString(), mode, commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), workingTree: execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim(), datasetSource: dataset.source, hashes: Object.fromEntries(["data/exames.json", "data/preparos.json", "evaluation/cases.json", "evaluation/rules.ts", "app/api/chat/route.ts", "lib/mock-response.ts", "lib/search.ts", "lib/aggregate.ts", "lib/answer-composer.ts", "lib/preparation-policy.ts", "lib/medication-policy.ts", "lib/request-policy.ts", "lib/conversation-query.ts", "lib/documentary-evidence.ts", "data/documentary-evidence.json", "data/exam-preparation-associations.json", "scripts/ingest-exames.mjs"].map(path => [path, hash(path)])), summary: { total: results.length, checksPassed: passed, needsReview: results.length - passed, clinicallyApproved: 0 }, results }
   mkdirSync("evaluation/reports", { recursive: true })
   writeFileSync(`evaluation/reports/${mode}.json`, JSON.stringify(report, null, 2) + "\n")
-  const md = [`# Avaliação inicial do assistente UDI`, "", `Modo: ${mode}. Commit: ${report.commit}.`, "", `32 referências provisórias: ${passed} casos passaram pelas verificações objetivas e ${32 - passed} exigem revisão. Nenhum caso está homologado clinicamente por esta execução.`, "", "As verificações textuais são uma triagem: podem produzir falsos positivos ou negativos. Aprovação automática não comprova correção clínica, qualidade linguística ou fundamentação completa. Tempos são locais, sem medição de custo. IA não avaliada quando o modo é fallback.", "", "| Caso | Triagem | Verificações que falharam |", "|---|---|---|", ...results.map(r => `| ${r.id} | ${r.screening === "checks-passed" ? "Verificações passaram" : "Revisar"} | ${r.failedChecks.join("; ") || "—"} |`), "", "Respostas integrais, fontes, histórico de entrada, verificações e hashes estão no JSON ao lado."]
+  const md = [`# Avaliação inicial do assistente UDI`, "", `Modo: ${mode}. Commit: ${report.commit}.`, "", `${results.length} referências provisórias: ${passed} casos passaram pelas verificações objetivas e ${results.length - passed} exigem revisão. Nenhum caso está homologado clinicamente por esta execução.`, "", "As verificações textuais são uma triagem: podem produzir falsos positivos ou negativos. Aprovação automática não comprova correção clínica, qualidade linguística ou fundamentação completa. Tempos são locais, sem medição de custo. IA não avaliada quando o modo é fallback.", "", "| Caso | Triagem | Verificações que falharam |", "|---|---|---|", ...results.map(r => `| ${r.id} | ${r.screening === "checks-passed" ? "Verificações passaram" : "Revisar"} | ${r.failedChecks.join("; ") || "—"} |`), "", "Respostas integrais, fontes, histórico de entrada, verificações e hashes estão no JSON ao lado."]
   writeFileSync(`evaluation/reports/${mode}.md`, md.join("\n") + "\n")
-  console.log(`Triagem ${mode}: ${passed}/32 sem falhas objetivas; ${32 - passed}/32 para revisão. Relatórios: evaluation/reports/${mode}.{json,md}`)
-  expect(results).toHaveLength(32)
+  console.log(`Triagem ${mode}: ${passed}/${results.length} sem falhas objetivas; ${results.length - passed}/${results.length} para revisão. Relatórios: evaluation/reports/${mode}.{json,md}`)
+  expect(results).toHaveLength(36)
+  // New documentary cases enforce safety while the original baseline remains reviewable.
+  expect(results.filter(r => r.id.startsWith("DOC-") && r.failedChecks.length).map(r => ({ id: r.id, failedChecks: r.failedChecks }))).toEqual([])
   // Baseline intentionally records existing failures without treating them as an infrastructure error.
   if (process.env.EVAL_STRICT === "1") expect(results.filter(r => r.failedChecks.length).map(r => r.id)).toEqual([])
 })
