@@ -2,6 +2,7 @@ import { it, expect } from 'vitest'
 import { generateMockResponse } from './mock-response'
 import { factsForExam } from './documentary-evidence'
 import registry from '@/data/documentary-evidence.json'
+import conflicts from '@/data/conflitos.json'
 import exams from '@/data/exames.json'
 import preparationData from '@/data/preparos.json'
 import { composeAnswer } from './answer-composer'
@@ -89,4 +90,49 @@ it('muda a apresentação por perfil sem eliminar a evidência ou inventar valid
  expect(patient.reply).toContain('não representam o preparo completo')
  expect(professional.reply).toContain('validação da UDI pendente')
  expect(patient.sources.flatMap(s=>s.evidence??[])).toEqual(professional.sources.flatMap(s=>s.evidence??[]))
+})
+
+it.each([
+ ['RXESO', 'rx_esofago', 'rx-esofago-jejum', 'Exames escaneados.pdf', '146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10', 'página 5, instrução de jejum', 'REALIZAR JEJUM DE 6H ANTES DA REALIZAÇÃO DO EXAME.'],
+ ['RXTDE', 'rx_transito_intestinal', 'rx-transito-intestinal-jejum', 'Scanned 9 Nov 2026 at 180448.pdf', '7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0', 'página 5, seção no dia do exame', 'O PACIENTE DEVERÁ ESTAR EM JEJUM POR 6h'],
+ ['RXTIN', 'rx_transito_intestinal', 'rx-transito-intestinal-jejum', 'Scanned 9 Nov 2026 at 180448.pdf', '7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0', 'página 5, seção no dia do exame', 'O PACIENTE DEVERÁ ESTAR EM JEJUM POR 6h'],
+])('%s recupera somente o jejum documentado de 6 horas para seu grupo', (code, preparationId, factId, sourceTitle, sourceHash, locator, quote) => {
+ const exam = exams.find(exam => exam.sigla === code)!
+ expect(exam.preparo_id).toBe(preparationId)
+ const response = composeAnswer('Qual o preparo?', [exam], preparations, 'patient')!
+ expect(response.reply).toContain('Jejum de 6 horas antes do exame.')
+ expect(response.reply).toContain('confirmadas pela equipe do hospital')
+ expect(response.sources.flatMap(source => source.evidence ?? [])).toEqual([
+  { factId, text: 'Jejum de 6 horas antes do exame.', topic: 'fasting', sourceTitle, sourceHash, locator, quote, validation: 'pending-udi' },
+ ])
+ expect(response.reply).not.toMatch(/não há necessidade|nenhum preparo|12 horas|bexiga cheia|Dulcolax|Norfloxacino/i)
+})
+
+it.each([
+ ['RXUR1', 'rx_urografia_excretora', 'rx-urografia-preparo-documentado', 'Exames escaneados.pdf', '146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10', 'página 2, título e cabeçalho de medicações', 'PREPARO UROGRAFIA EXCRETORA / MEDICAÇÕES PARA TOMAR:'],
+ ['RXUR4', 'rx_urografia_excretora', 'rx-urografia-preparo-documentado', 'Exames escaneados.pdf', '146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10', 'página 2, título e cabeçalho de medicações', 'PREPARO UROGRAFIA EXCRETORA / MEDICAÇÕES PARA TOMAR:'],
+ ['RXURE', 'rx_uretrocistografia_adulto', 'rx-uretrocistografia-preparo-documentado', 'Scanned 9 Nov 2026 at 180448.pdf', '7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0', 'página 4, título e cabeçalho de medicamento', 'PREPARO EXAME DE URETROCISTOGRAFIA MICCIONAL / TOMAR O MEDICAMENTO:'],
+ ['RXURP', 'rx_uretrocistografia_crianca', 'rx-uretrocistografia-preparo-documentado', 'Scanned 9 Nov 2026 at 180448.pdf', '7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0', 'página 4, título e cabeçalho de medicamento', 'PREPARO EXAME DE URETROCISTOGRAFIA MICCIONAL / TOMAR O MEDICAMENTO:'],
+])('%s apresenta preparo documentado e encaminha instruções medicamentosas à UDI', (code, preparationId, factId, sourceTitle, sourceHash, locator, quote) => {
+ const exam = exams.find(exam => exam.sigla === code)!
+ expect(exam.preparo_id).toBe(preparationId)
+ const response = composeAnswer('Qual o preparo?', [exam], preparations, 'patient')!
+ expect(response.reply).toContain('Há preparo documentado que envolve medicamento. Confirme as instruções medicamentosas com a UDI antes do exame.')
+ expect(response.sources.flatMap(source => source.evidence ?? [])).toEqual([
+  { factId, text: 'Há preparo documentado que envolve medicamento. Confirme as instruções medicamentosas com a UDI antes do exame.', topic: 'medication-confirmation', sourceTitle, sourceHash, locator, quote, validation: 'pending-udi' },
+ ])
+ expect(JSON.stringify(response)).not.toMatch(/Dulcolax|Ducolax|Norfloxacino|\bmg\b|comprimidos?|gotas|12\s*(?:h|horas)|3 dias|18h|após o jantar|na véspera/i)
+})
+
+it('preserva os grupos de enema e RXHIS sem fatos enquanto há conflitos pendentes', () => {
+ for (const preparationId of ['rx_histerossalpingografia', 'rx_enema_opaco_adulto', 'rx_enema_opaco_crianca']) {
+  expect(conflicts.conflitos.some(conflict => conflict.status === 'pending-udi' && conflict.preparo_ids.includes(preparationId))).toBe(true)
+  expect(preparations.preparos[preparationId].fact_ids ?? []).toEqual([])
+  const affected = exams.filter(exam => exam.preparo_id === preparationId)
+  for (const exam of affected) {
+   expect(factsForExam(exam, preparations.preparos[preparationId])).toEqual([])
+   expect(registry.facts.some(fact => fact.appliesTo.includes(exam.sigla))).toBe(false)
+  }
+ }
+ expect(exams.find(exam => exam.sigla === 'RXHIS')!.preparo_id).toBe('rx_histerossalpingografia')
 })

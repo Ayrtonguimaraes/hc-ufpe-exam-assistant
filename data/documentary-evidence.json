@@ -1976,6 +1976,65 @@
       },
       "showWithExam": false,
       "ruleNote": "Não afirma se o exame é seguro ou contraindicado na gestação; só o termo e o aviso ao setor."
+    },
+    {
+      "id": "rx-esofago-jejum",
+      "text": "Jejum de 6 horas antes do exame.",
+      "topic": "fasting",
+      "appliesTo": [
+        "RXESO"
+      ],
+      "locator": "página 5, instrução de jejum",
+      "quote": "REALIZAR JEJUM DE 6H ANTES DA REALIZAÇÃO DO EXAME.",
+      "sourceId": "exames-escaneados",
+      "validation": "pending-udi",
+      "documentaryReview": "checked-2026-11-09",
+      "modality": "radiologia_convencional"
+    },
+    {
+      "id": "rx-transito-intestinal-jejum",
+      "text": "Jejum de 6 horas antes do exame.",
+      "topic": "fasting",
+      "appliesTo": [
+        "RXTDE",
+        "RXTIN"
+      ],
+      "locator": "página 5, seção no dia do exame",
+      "quote": "O PACIENTE DEVERÁ ESTAR EM JEJUM POR 6h",
+      "sourceId": "scanned-2026-11-09",
+      "validation": "pending-udi",
+      "documentaryReview": "checked-2026-11-09",
+      "modality": "radiologia_convencional"
+    },
+    {
+      "id": "rx-urografia-preparo-documentado",
+      "text": "Há preparo documentado que envolve medicamento. Confirme as instruções medicamentosas com a UDI antes do exame.",
+      "topic": "medication-confirmation",
+      "appliesTo": [
+        "RXUR1",
+        "RXUR4"
+      ],
+      "locator": "página 2, título e cabeçalho de medicações",
+      "quote": "PREPARO UROGRAFIA EXCRETORA / MEDICAÇÕES PARA TOMAR:",
+      "sourceId": "exames-escaneados",
+      "validation": "pending-udi",
+      "documentaryReview": "checked-2026-11-09",
+      "modality": "radiologia_convencional"
+    },
+    {
+      "id": "rx-uretrocistografia-preparo-documentado",
+      "text": "Há preparo documentado que envolve medicamento. Confirme as instruções medicamentosas com a UDI antes do exame.",
+      "topic": "medication-confirmation",
+      "appliesTo": [
+        "RXURE",
+        "RXURP"
+      ],
+      "locator": "página 4, título e cabeçalho de medicamento",
+      "quote": "PREPARO EXAME DE URETROCISTOGRAFIA MICCIONAL / TOMAR O MEDICAMENTO:",
+      "sourceId": "scanned-2026-11-09",
+      "validation": "pending-udi",
+      "documentaryReview": "checked-2026-11-09",
+      "modality": "radiologia_convencional"
     }
   ],
   "scope": "Informações não medicamentosas de ultrassom com trechos e aplicação explícita; não constitui protocolo completo homologado."
