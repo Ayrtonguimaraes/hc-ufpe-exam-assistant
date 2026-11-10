@@ -13,6 +13,20 @@
       "origin": "Documento recebido do projeto; arquivo original preservado localmente",
       "clinicalApproval": "not-demonstrated",
       "note": "Numeração P = parágrafos da extração da auditoria local. ORIENTAÇÕES PARA TOMOGRAFIA HC-UFPE (PDF) repete parte do conteúdo e pode ser cópia, não validação independente."
+    },
+    "exames-escaneados": {
+      "title": "Exames escaneados.pdf",
+      "sha256": "146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10",
+      "origin": "Documento escaneado recebido do projeto; arquivo original preservado localmente",
+      "clinicalApproval": "not-demonstrated",
+      "note": "Localizadores indicam páginas do PDF. Anotações manuscritas não demonstram vigência ou aprovação clínica."
+    },
+    "scanned-2026-11-09": {
+      "title": "Scanned 9 Nov 2026 at 180448.pdf",
+      "sha256": "7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0",
+      "origin": "Documento escaneado recebido do projeto; arquivo original preservado localmente",
+      "clinicalApproval": "not-demonstrated",
+      "note": "Localizadores indicam páginas do PDF. Anotações manuscritas não demonstram vigência ou aprovação clínica."
     }
   },
   "facts": [
