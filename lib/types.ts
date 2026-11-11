@@ -22,6 +22,8 @@ export type Exame = {
 export type EvidenceReference = {
   factId: string
   text: string
+  /** Same fact addressed to a professional (third person), when the patient wording does not fit. */
+  textProfessional?: string
   topic: string
   sourceTitle: string
   sourceHash: string
