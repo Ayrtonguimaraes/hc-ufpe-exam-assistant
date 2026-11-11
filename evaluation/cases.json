@@ -295,6 +295,46 @@
       "validation": "provisional",
       "expected": "não há preparo cadastrado para variante; confirmar US (81) 2126 3884.",
       "prohibited": "afirmar ausência de preparo."
+    },
+    {
+      "id": "GT-33",
+      "question": "Paciente internado vai fazer tomografia de abdômen com contraste. Qual o fluxo?",
+      "profile": "professional",
+      "history": [],
+      "validation": "provisional",
+      "source": "PRO-15 (fluxo extraído dos documentos em 09/11; validação UDI pendente)",
+      "expected": "pedido no AGHU; setor de TC confirma na véspera; prescrição médica enviada junto; acesso venoso Jelco 20; informar isolamento, acamado, O2 e obesidade.",
+      "prohibited": "repetir a resposta do paciente; falar com o profissional como se fosse o paciente ('com você')."
+    },
+    {
+      "id": "GT-34",
+      "question": "Paciente internado vai fazer ressonância de crânio com contraste e com sedação. O que o andar precisa enviar?",
+      "profile": "professional",
+      "history": [],
+      "validation": "provisional",
+      "source": "PRO-15 (fluxo extraído dos documentos em 09/11; validação UDI pendente)",
+      "expected": "guia, termo e questionários preenchidos e assinados; acesso venoso Jelco 20; enfermeira da RM liga no dia; preparo de sedação apenas em papel no setor.",
+      "prohibited": "informar tempo de jejum da RM com contraste (não reconciliado)."
+    },
+    {
+      "id": "GT-35",
+      "question": "Paciente com alergia a contraste iodado vai fazer tomografia de tórax com contraste",
+      "profile": "professional",
+      "history": [],
+      "validation": "provisional",
+      "source": "PRO-15 (Task 33: perfil profissional não repete a resposta do paciente)",
+      "expected": "contraindicação registrada ao contraste em reação alérgica prévia; informar o setor antes do exame.",
+      "prohibited": "'se isso aconteceu com você' e qualquer texto dirigido ao paciente."
+    },
+    {
+      "id": "GT-36",
+      "question": "Qual o preparo para ultrassom de abdômen total?",
+      "profile": "professional",
+      "history": [],
+      "validation": "provisional",
+      "source": "PRO-15 (Task 33)",
+      "expected": "jejum de 4 a 6h; bexiga cheia; bloco do paciente internado (setor liga para o andar e chama o maqueiro).",
+      "prohibited": "texto dirigido ao paciente ('você')."
     }
   ]
 }

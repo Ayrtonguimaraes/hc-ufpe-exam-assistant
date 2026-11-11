@@ -8,6 +8,7 @@ const partial = yes("Explicita informação parcial", "parcial|incomplet|nao.*(r
 const noPrep = no("Não garante dispensa de preparo", "nao exige preparo especial|nao precisa de preparo")
 const medicalReferral = yes("Encaminha decisão individual ao profissional", "(confirm|consulte|procure|contat|convers|orientac).{0,100}(medic|equipe|udi|setor)|prescri")
 const noDiabetes = no("Não reproduz suspensão genérica de antidiabéticos", "nao tomar a medicacao para diabetes|suspend.{0,35}(48|diabetes|metformina)")
+const secondPerson = no("Não se dirige ao paciente no perfil profissional", "com voce|se voce|voce tem|voce recebera|seu exame")
 const docs = [yes("Documento com foto", "foto"), yes("Cartão SUS", "sus"), yes("Cartão hospital", "cartao do hospital|cartao hospital"), yes("Pedido original", "pedido.{0,20}original"), yes("Exames anteriores", "exames anteriores")]
 export const rules: Record<string, Rule[]> = {
   "GT-01": [...docs, yes("Antecedência geral", "30 minutos|30 min")],
@@ -42,6 +43,11 @@ export const rules: Record<string, Rule[]> = {
   "GT-30": [yes("Distingue contrastados", "contrastad"), no("Não inclui TC na lista RX", "tomografia")],
   "GT-31": [medicalReferral, no("Não prescreve substituto", "usar analgesico de costume|tome.{0,30}(buscop|analgesic)|usar.{0,30}antiespasmod")],
   "GT-32": [pending, referral, yes("Contato US", "2126 3884"), noPrep],
+  // PRO-15: professional profile and inpatient flow.
+  "GT-33": [yes("Pedido no AGHU", "aghu"), yes("Confirmação na véspera", "vespera"), yes("Prescrição junto", "prescricao"), yes("Jelco 20", "jelco 20"), yes("Isolamento", "isolamento"), yes("Oxigênio", "\\bo2\\b|oxigenio"), secondPerson],
+  "GT-34": [yes("Guia", "guia"), yes("Termo", "termo"), yes("Questionários", "questionario"), yes("Jelco 20", "jelco 20"), yes("Sedação em papel", "papel"), no("Não informa jejum não reconciliado", "jejum de [0-9]"), secondPerson],
+  "GT-35": [yes("Contraindicação registrada", "contraindicacao"), referral, secondPerson],
+  "GT-36": [yes("Jejum 4 a 6h", "4 a 6\\s*h|4 a 6 horas"), yes("Bloco do internado", "internado"), yes("Maqueiro", "maqueiro"), secondPerson],
 }
 
 export const expectedPreparos: Record<string, string> = {

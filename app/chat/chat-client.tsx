@@ -11,12 +11,14 @@ import {
   Info,
   FileText,
   PanelLeft,
+  ClipboardCheck,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { GuidedExamPicker } from "@/components/guided-exam-picker"
 import { ChatSidebar } from "@/components/chat-sidebar"
+import { InpatientChecklistPanel } from "@/components/inpatient-checklist-panel"
 import { useChatSessions } from "@/hooks/use-chat-sessions"
 import type { Profile, Source, StoredMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -31,10 +33,10 @@ const SUGGESTIONS: Record<Profile, string[]> = {
     "Como devo me preparar para a mamografia?",
   ],
   professional: [
+    "Paciente internado vai fazer tomografia de abdômen com contraste: qual o fluxo?",
     "Qual o código AGHU da tomografia de abdômen com contraste?",
     "Qual o fluxo de solicitação e realização de raio-X pelo AGHU?",
     "Qual o preparo para ressonância de abdômen com contraste?",
-    "Quais exames de raio-X exigem preparo?",
   ],
 }
 
@@ -133,6 +135,7 @@ export function ChatClient() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [checklistOpen, setChecklistOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   // Trava de envio em andamento — bloqueia envios em sequência no mesmo tick,
@@ -274,6 +277,17 @@ export function ChatClient() {
                 </p>
               </div>
             </div>
+            <div className="flex shrink-0 items-center gap-2">
+            {profile === "professional" && (
+              <button
+                type="button"
+                onClick={() => setChecklistOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-azure-deep transition-colors hover:border-azure hover:bg-mist"
+              >
+                <ClipboardCheck className="size-3.5" aria-hidden="true" />
+                Checklist do internado
+              </button>
+            )}
             <button
               type="button"
               onClick={switchProfile}
@@ -286,8 +300,13 @@ export function ChatClient() {
               <ProfileIcon className="size-3.5" aria-hidden="true" />
               {meta.label}
             </button>
+            </div>
           </div>
         </header>
+
+        {checklistOpen && profile === "professional" && (
+          <InpatientChecklistPanel onClose={() => setChecklistOpen(false)} />
+        )}
 
         {/* Warning banner */}
         <div className="shrink-0 border-b border-border bg-mist/60">

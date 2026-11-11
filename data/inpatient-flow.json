@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "note": "Fluxo do paciente internado extraído dos documentos do setor em 09/11/2026 (PRO-15, Task 31). Todos os itens estão com validação da UDI e da enfermagem pendente (PRO-15, Task 32). Não há integração com o AGHU nem dados de pacientes.",
+  "sources": {
+    "orientacoes-tc-rm": "Orientações exames - Tomografia - Ressonancia.docx",
+    "fluxo-tc-rm": "FLUXO TOMOGRAFIA.pdf (fluxograma de TC e RM)",
+    "checklist-internos": "Check list para pacientes internos (formulário em papel do hospital)",
+    "catalogo": "Cadastro de preparos do projeto (data/preparos.json)"
+  },
+  "flows": {
+    "tomografia_computadorizada": {
+      "title": "Tomografia — paciente internado",
+      "steps": [
+        { "text": "O médico solicita o exame no AGHU (obrigatório).", "sourceId": "orientacoes-tc-rm", "locator": "P61" },
+        { "text": "Na véspera, o setor de TC liga para o andar para confirmar o exame.", "sourceId": "orientacoes-tc-rm", "locator": "P63; fluxograma" },
+        { "text": "No dia, a enfermeira da TC chama o maqueiro.", "sourceId": "orientacoes-tc-rm", "locator": "P64" },
+        { "text": "Antes de enviar o paciente, o andar confere se o preparo foi feito e envia a prescrição médica junto.", "sourceId": "orientacoes-tc-rm", "locator": "P66" },
+        { "text": "O andar informa ao setor: isolamento, paciente acamado, uso de O2 e obesidade.", "sourceId": "orientacoes-tc-rm", "locator": "P68–73" },
+        { "text": "O andar confere adornos e metal, bolsas e drenos vazios, analgesia e, se o paciente estiver instável, o acompanhamento médico.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80" },
+        { "text": "Exames com contraste: acesso venoso periférico com Jelco 20 na fossa cubital; na AngioTC, Jelco 18. O uso de acesso venoso central é avaliado pelo radiologista.", "sourceId": "orientacoes-tc-rm", "locator": "P86–87, P91" }
+      ]
+    },
+    "ressonancia_magnetica": {
+      "title": "Ressonância — paciente internado",
+      "steps": [
+        { "text": "O médico solicita o exame no AGHU. A APAC só é necessária quando o exame é feito fora do hospital.", "sourceId": "fluxo-tc-rm", "locator": "fluxograma RM" },
+        { "text": "Com antecedência, o setor de RM envia ao andar a guia, o termo e os questionários, com data, horário e preparo.", "sourceId": "orientacoes-tc-rm", "locator": "P5; fluxograma" },
+        { "text": "No dia, a enfermeira da RM liga para o andar e confirma o exame e as condições do paciente: isolamento, acamado, se deambula, O2 e curativo especial.", "sourceId": "orientacoes-tc-rm", "locator": "P7; fluxograma" },
+        { "text": "O andar envia o paciente com a guia, o termo e os questionários preenchidos e assinados, faz o checklist e garante o acesso venoso com Jelco 20.", "sourceId": "fluxo-tc-rm", "locator": "fluxograma RM" },
+        { "text": "O preparo de contraste e de sedação da RM está apenas em papel no setor (\"verificar no papel\"); confirmar com a UDI.", "sourceId": "orientacoes-tc-rm", "locator": "P35–36" }
+      ]
+    },
+    "ultrassonografia": {
+      "title": "Ultrassom — paciente internado",
+      "steps": [
+        { "text": "O setor de ultrassom liga para o andar para informar a disponibilidade e chama o maqueiro.", "sourceId": "orientacoes-tc-rm", "locator": "fluxo de US (documento do setor)" }
+      ]
+    }
+  },
+  "nursing": {
+    "common": [
+      { "text": "Conferir se o preparo foi feito e enviar a prescrição médica junto com o paciente.", "sourceId": "orientacoes-tc-rm", "locator": "P66", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Retirar adornos e qualquer objeto de metal.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80; checklist de internos", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Esvaziar bolsas coletoras e drenos.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Conferir a analgesia antes do transporte.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Paciente instável: providenciar acompanhamento médico no transporte e no exame.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Enviar RG e questionário preenchido; paciente de máscara e com acompanhante.", "sourceId": "checklist-internos", "locator": "formulário de internos", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Enviar a guia, o termo e os questionários da RM preenchidos e assinados.", "sourceId": "fluxo-tc-rm", "locator": "fluxograma RM", "modalities": ["ressonancia_magnetica"] },
+      { "text": "Registrar no checklist o enfermeiro responsável, o setor de origem, o responsável pela checagem e a data.", "sourceId": "checklist-internos", "locator": "formulário de internos", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica", "ultrassonografia"] }
+    ],
+    "contrast": {
+      "default": { "text": "Acesso venoso periférico com Jelco 20 na fossa cubital.", "sourceId": "orientacoes-tc-rm", "locator": "P86" },
+      "angio": { "text": "AngioTC: acesso venoso periférico com Jelco 18.", "sourceId": "orientacoes-tc-rm", "locator": "P87" },
+      "central": { "text": "Acesso venoso central: o uso é avaliado pelo radiologista; avisar o setor antes.", "sourceId": "orientacoes-tc-rm", "locator": "P91" },
+      "mri": { "text": "Garantir acesso venoso com Jelco 20.", "sourceId": "fluxo-tc-rm", "locator": "fluxograma RM" }
+    }
+  },
+  "report": [
+    { "condition": "isolamento", "text": "Isolamento: informar o tipo (contato ou respiratório).", "sourceId": "orientacoes-tc-rm", "locator": "P68–73; checklist de internos" },
+    { "condition": "covid", "text": "COVID: informar ao setor.", "sourceId": "checklist-internos", "locator": "formulário de internos" },
+    { "condition": "acamado", "text": "Mobilidade: informar se o paciente está acamado, é cadeirante ou deambula.", "sourceId": "orientacoes-tc-rm", "locator": "P68–73; P7 (RM); checklist de internos" },
+    { "condition": "oxigenio", "text": "Uso de O2: informar ao setor.", "sourceId": "orientacoes-tc-rm", "locator": "P68–73; checklist de internos" },
+    { "condition": "obesidade", "text": "Obesidade ou peso acima de 120 kg: informar ao setor.", "sourceId": "orientacoes-tc-rm", "locator": "P68–73; checklist de internos" },
+    { "condition": "infusao", "text": "Bomba de infusão ou medicação venosa em curso: informar ao setor.", "sourceId": "checklist-internos", "locator": "formulário de internos" },
+    { "condition": "curativo", "text": "Curativo especial: informar ao setor de RM.", "sourceId": "orientacoes-tc-rm", "locator": "P7; fluxograma RM", "modalities": ["ressonancia_magnetica"] }
+  ]
+}
