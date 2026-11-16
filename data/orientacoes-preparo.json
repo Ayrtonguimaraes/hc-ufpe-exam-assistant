@@ -715,7 +715,7 @@
       "texto": "Na antevéspera, às 20h, laxante (óleo de rícino ou bisacodil); na véspera, bisacodil às 10h e às 21h e leite de magnésia às 17h, com cronograma de água e mingau.",
       "medicamento": {
         "principioAtivo": "óleo de rícino ou bisacodil; hidróxido de magnésio",
-        "posologiaNaFonte": "como na versão 1, sem simeticona",
+        "posologiaNaFonte": "1 vidro de Laxol ou 4 comprimidos de Ducolax às 20h da antevéspera; na véspera, 3 comprimidos de Ducolax às 10h e às 21h e 1 vidro pequeno de leite de magnésia às 17h",
         "classe": "A",
         "exigeReceita": false,
         "nomeComercial": "Laxol / Dulcolax / Leite de Magnésia"
@@ -1142,7 +1142,7 @@
       "texto": "Enterotomografia: trazer uma caixa de macrogol (Muvinlax) para o preparo, além do jejum de 8 horas.",
       "medicamento": {
         "principioAtivo": "macrogol",
-        "posologiaNaFonte": "trazer 1 caixa; preparo feito no setor",
+        "posologiaNaFonte": "trazer 1 caixa",
         "classe": "A",
         "exigeReceita": false,
         "nomeComercial": "Muvinlax"
@@ -1212,7 +1212,7 @@
       "condicao": "historico_de_alergia",
       "medicamento": {
         "principioAtivo": "antialérgico (não especificado na fonte)",
-        "posologiaNaFonte": "esquema não informado na fonte",
+        "posologiaNaFonte": "a fonte não informa medicamento nem esquema",
         "classe": "A",
         "exigeReceita": true
       },
@@ -1296,7 +1296,7 @@
       "condicao": "diabetico",
       "medicamento": {
         "principioAtivo": "antidiabéticos (não especificados)",
-        "posologiaNaFonte": "suspender no dia e nas 48 horas seguintes",
+        "posologiaNaFonte": "não tomar no dia do exame e nas 48 horas seguintes",
         "classe": "B",
         "exigeReceita": true
       },
@@ -1429,5 +1429,6 @@
       },
       "estado": "documental-pendente-udi"
     }
-  ]
+  ],
+  "notaClassificacao": "Os campos classe, indispensavel e exigeReceita são classificação proposta pela equipe do projeto, não estão nas fontes e não foram validados pela UDI. exigeReceita indica se o medicamento exige receita para ser comprado; no paciente internado, todo medicamento de preparo precisa estar na prescrição."
 }

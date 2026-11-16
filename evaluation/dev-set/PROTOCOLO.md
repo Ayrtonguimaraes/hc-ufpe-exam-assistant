@@ -61,8 +61,8 @@ Regras para dar a nota:
 | Resultado | Fork 06/11 | Fork 08/11 | Fork 15/11 | App original (Claude) |
 |---|---|---|---|---|
 | Resolveu (R) | 4 | 23 | 26 | 16 |
-| Encaminhou bem (E) | 7 | 9 | 9 | 16 |
-| Não entendeu (N) | 19 | 3 | 0 | 1 |
+| Encaminhou bem (E) | 7 | 9 | 8 | 16 |
+| Não entendeu (N) | 19 | 3 | 1 | 1 |
 | Falha grave (P) | 6 | 1 | 1 | 3 |
 
 Como esses números foram obtidos:
@@ -71,7 +71,7 @@ Como esses números foram obtidos:
   - **Fork 06/11:** servidor local, sem modelo.
   - **Fork 08/11:** servidor local, com Groq (gpt-oss-120b).
   - **App original:** link publicado da turma anterior, com Claude, rodado em 06/11.
-- **Fork 15/11:** servidor local com Groq, commit da branch `improvement/standard-preparation-data`, 3 rodadas (as 3 deram o mesmo texto em todas as perguntas). Notas em `runs/2026-11-16-02-28-local-notas-avaliador-ia.csv`. Mudanças em relação a 08/11: H23 (mamografia) E→R pela correção da proibição de medicação na pele; H34 e H36 (profissional/internado) N→R pelo fluxo do internado; H03 N→E (pede a região em vez de "não localizei"). A falha grave restante é H05: alergia a camarão tratada como decisão de medicamento, sem dizer que a folha não indica antialérgico nesse caso.
+- **Fork 15/11:** nota do mesmo avaliador de IA, sem conferência humana; servidor local com Groq, commit da branch `improvement/standard-preparation-data`, 3 rodadas (as 3 deram o mesmo texto em todas as perguntas). Notas em `runs/2026-11-16-02-28-local-notas-avaliador-ia.csv`. Mudanças em relação a 08/11: H23 (mamografia) E→R pela correção da proibição de medicação na pele; H34 e H36 (profissional/internado) N→R pelo fluxo do internado; H03 continua N (pede a região, mas o jejum de 8h com sedação não depende dela). A falha grave restante é H05: alergia a camarão tratada como decisão de medicamento, sem dizer que a folha não indica antialérgico nesse caso.
 - **Perguntas novas (X1 a X7, fora da tabela):** 4 R, 2 E, 1 N. O N é o X6: "enema opaco" não tem exame no catálogo e o modelo respondeu sobre tomografia com contraste.
 - **Avaliador:** quem deu as notas foi o assistente de IA usado no desenvolvimento, numa leitura única, sem formação clínica e sem segundo avaliador.
 - **Uso destes números:** comparam versões do mesmo conjunto com o mesmo avaliador. Não são uma medida clínica nem independente.

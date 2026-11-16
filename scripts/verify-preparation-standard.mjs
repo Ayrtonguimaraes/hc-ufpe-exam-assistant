@@ -87,6 +87,7 @@ export function buildMedicationReport({ standard, fontes, exams, preparations })
     '',
     '> Arquivo gerado por `node scripts/verify-preparation-standard.mjs --write` a partir de `data/orientacoes-preparo.json`. Não edite à mão.',
     '> Nenhum item está homologado pela UDI. A posologia é a da fonte e não substitui a prescrição.',
+    `> ${standard.notaClassificacao}`,
     '',
     `Total: ${drugs.length} itens. ` + Object.entries(classes).map(([c, label]) => `Classe ${c} (${label}): ${count(c)}.`).join(' '),
     '',

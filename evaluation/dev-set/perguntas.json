@@ -11,7 +11,7 @@
       "turnos": [
         "tomografia de abdome precisa de jejum?"
       ],
-      "esperado": "S03 P95 e S08: TC de abdômen, jejum de 4 horas",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P95 e Folha TC (folha-tc): TC de abdômen, jejum de 4 horas",
       "deve": [
         "jejum de 4|4 horas|sedacao"
       ],
@@ -26,7 +26,7 @@
       "turnos": [
         "vou fazer enterotomografia, como me preparo?"
       ],
-      "esperado": "S03 P97: jejum de 8h + trazer 1 caixa de muvinlax OU macrogol",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P97: jejum de 8h + trazer 1 caixa de muvinlax OU macrogol",
       "deve": [
         "8 h|8 horas|enterotomografia|entero"
       ],
@@ -39,7 +39,7 @@
       "turnos": [
         "minha filha vai fazer tomografia com sedação, quanto tempo de jejum?"
       ],
-      "esperado": "S03 P99: com sedação, jejum de 8 horas",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P99: com sedação, jejum de 8 horas",
       "deve": [
         "8 h|8 horas|regiao|qual destes"
       ],
@@ -52,7 +52,7 @@
       "turnos": [
         "faço hemodiálise e tenho tomografia marcada, muda alguma coisa?"
       ],
-      "esperado": "S03 P103: programar sessões para depois do exame",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P103: programar sessões para depois do exame",
       "deve": [
         "hemodialise|setor|regiao"
       ],
@@ -67,7 +67,7 @@
       "turnos": [
         "tomo com contraste, sou alérgico a camarão, tem problema?"
       ],
-      "esperado": "S03 P110: alergia a frutos do mar não indica antialérgico; encaminhar decisão individual",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P110: alergia a frutos do mar não indica antialérgico; encaminhar decisão individual",
       "deve": [
         "medic|setor|equipe"
       ],
@@ -82,7 +82,7 @@
       "turnos": [
         "já tive reação alérgica grave a contraste iodado. posso fazer tomografia com contraste?"
       ],
-      "esperado": "S03 P84: contraindicação; encaminhar",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P84: contraindicação; encaminhar",
       "deve": [
         "contraindica"
       ],
@@ -97,7 +97,7 @@
       "turnos": [
         "tomografia com contraste, tomo metformina. o que eu faço?"
       ],
-      "esperado": "S03 P101 existe; deve encaminhar sem decisão individual, idealmente dizendo que há regra e que deve confirmar",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P101 existe; deve encaminhar sem decisão individual, idealmente dizendo que há regra e que deve confirmar",
       "deve": [
         "medic|setor|equipe"
       ],
@@ -112,7 +112,7 @@
       "turnos": [
         "depois da tomografia com contraste tem algum cuidado?"
       ],
-      "esperado": "S03 P119: ingerir bastante líquido, salvo contraindicação",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P119: ingerir bastante líquido, salvo contraindicação",
       "deve": [
         "liquido"
       ],
@@ -125,7 +125,7 @@
       "turnos": [
         "peso 130 kg, consigo fazer ressonância aí?"
       ],
-      "esperado": "S03 P16/P43: não realizada acima de 120 kg",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P16/P43: não realizada acima de 120 kg",
       "deve": [
         "120"
       ],
@@ -138,7 +138,7 @@
       "turnos": [
         "meu filho tem 6 anos e o médico pediu ressonância de crânio"
       ],
-      "esperado": "S03 P44: RM não realizada em menores de 8 anos no HC",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P44: RM não realizada em menores de 8 anos no HC",
       "deve": [
         "8 anos"
       ],
@@ -151,7 +151,7 @@
       "turnos": [
         "tenho hemocromatose, posso fazer ressonância?"
       ],
-      "esperado": "S03 P45: não realizada no HC",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P45: não realizada no HC",
       "deve": [
         "hemocromatose"
       ],
@@ -164,7 +164,7 @@
       "turnos": [
         "vocês fazem ressonância de plexo braquial?"
       ],
-      "esperado": "S03 P47: não realizada no HC",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P47: não realizada no HC",
       "deve": [
         "plexo"
       ],
@@ -177,7 +177,7 @@
       "turnos": [
         "elastografia hepática por ressonância, qual o preparo?"
       ],
-      "esperado": "S03 P46: não realizada no HC",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P46: não realizada no HC",
       "deve": [
         "elastografia"
       ],
@@ -190,7 +190,7 @@
       "turnos": [
         "estou grávida e tenho ressonância de joelho"
       ],
-      "esperado": "S03 P38: gestante preenche termo; encaminhar",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P38: gestante preenche termo; encaminhar",
       "deve": [
         "termo|gravid|gestante"
       ],
@@ -203,7 +203,7 @@
       "turnos": [
         "como faço pra marcar uma ressonância?"
       ],
-      "esperado": "S03 P51: ambulatorial precisa AGHU + APAC; marcação pela UBS/Secretaria de Saúde",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P51: ambulatorial precisa AGHU + APAC; marcação pela UBS/Secretaria de Saúde",
       "deve": [
         "ubs|secretaria|apac|aghu|setor|2126"
       ],
@@ -285,7 +285,7 @@
       "turnos": [
         "pedido de eco de abdomen, tenho que ir em jejum?"
       ],
-      "esperado": "Eco = ultrassom; total ou superior: jejum 4-6h em ambos (S05 P30-31)",
+      "esperado": "Eco = ultrassom; total ou superior: jejum 4-6h em ambos (Doc geral (orientacoes-exames) P30-31)",
       "deve": [
         "jejum|qual destes|superior|total"
       ],
@@ -315,7 +315,7 @@
       "turnos": [
         "mamo: posso usar creme no peito no dia?"
       ],
-      "esperado": "Mamografia; S05 restringe produtos/medicações na pele",
+      "esperado": "Mamografia; Doc geral (orientacoes-exames) restringe produtos/medicações na pele",
       "deve": [
         "mama|mamografia"
       ],
@@ -358,7 +358,7 @@
       "turnos": [
         "tenho pino de metal na perna, posso fazer ressonância?"
       ],
-      "esperado": "S03 P19: prótese interna deve ser informada no questionário; encaminhar",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P19: prótese interna deve ser informada no questionário; encaminhar",
       "deve": [
         "informe|setor|questionario"
       ],
@@ -479,7 +479,7 @@
       "turnos": [
         "TC com contraste em internado: qual jelco?"
       ],
-      "esperado": "S03 P86-87: Jelco 20; AngioTC Jelco 18",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P86-87: Jelco 20; AngioTC Jelco 18",
       "deve": [
         "jelco 20"
       ],
@@ -492,7 +492,7 @@
       "turnos": [
         "paciente com múltiplas alergias vai fazer TC com contraste. antialérgico?"
       ],
-      "esperado": "S03 P114: recomendado; decisão clínica",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P114: recomendado; decisão clínica",
       "deve": [
         "antialergico|medic|equipe|setor"
       ],
@@ -507,7 +507,7 @@
       "turnos": [
         "RM com contraste, qual acesso venoso?"
       ],
-      "esperado": "S03 P26: AVP Jelco 20; AVC avaliado pela equipe",
+      "esperado": "Doc TC/RM (orientacoes-tc-rm) P26: AVP Jelco 20; AVC avaliado pela equipe",
       "deve": [
         "jelco 20"
       ],
@@ -618,5 +618,6 @@
         "nao localizei"
       ]
     }
-  ]
+  ],
+  "fontes": "Os nomes entre parênteses são ids de data/fontes.json; P = parágrafo."
 }
