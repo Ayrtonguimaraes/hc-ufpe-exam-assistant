@@ -18,6 +18,6 @@ test('profissional pode expandir evidência com validação pendente', async ({p
  const reply=await waitForReply(page,0)
  expect(reply).toContain('bexiga cheia')
  await page.getByText('Informações e trechos de origem — validação UDI pendente',{exact:true}).click()
- await expect(page.getByText('Orientações exames.docx — parágrafos 34–35',{exact:true})).toBeVisible()
+ await expect(page.getByText('Orientações exames.docx — P34–35',{exact:true})).toBeVisible()
  await expect(page.getByText('Trecho localizado; protocolo ainda não homologado pela UDI.').first()).toBeVisible()
 })
