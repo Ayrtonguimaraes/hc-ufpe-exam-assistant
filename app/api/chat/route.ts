@@ -252,7 +252,10 @@ export async function POST(req: Request) {
     const directIntent = deterministicIntent(message)
     // A body region that exists in several modalities, with no hint of the exam type: ask the modality deterministically.
     const modalityUnknown = examModalityChoices(conversationQuery(message, history), exames).length > 0 && !MODALITY_CUE.test(normalize(message))
-    if (process.env.GROQ_API_KEY && !modalityUnknown && !asksMedicationDecision(message) && !restrictionsForQuestion(message, resolveExames(message, history)).length &&
+    // The message itself names exactly one catalog exam (e.g. "urografia excretora"): the catalog search already knows the
+    // exam, and the model could only replace it with a looser translation ("vias urinárias" → another modality).
+    const namesOneExam = searchExames(message, exames).length === 1
+    if (process.env.GROQ_API_KEY && !modalityUnknown && !namesOneExam && !asksMedicationDecision(message) && !restrictionsForQuestion(message, resolveExames(message, history)).length &&
         !["count", "missing", "attributes", "documents"].includes(directIntent ?? "") && !wantsAggregateList(message) && !wantsListaRaiox(message) && !wantsFluxoRaiox(message)) {
       const interpretation = await interpretQuestion(message, history)
       const result = interpretation ? answerFromInterpretation(interpretation, profile, history, message) : null
