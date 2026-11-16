@@ -1,4 +1,5 @@
-import { factsForExam } from './documentary-evidence'
+import { evidenceText, factsForExam } from './documentary-evidence'
+import { inpatientFlowMarkdown } from './inpatient-checklist'
 import { normalize } from './search'
 import { arrivalInstruction } from './preparation-policy'
 import { REGION_TERMS } from './request-policy'
@@ -8,6 +9,14 @@ import type { Exame, PreparosFile, Profile, Source } from './types'
 const medication = /medica[cç]|comprimido|gotas|\bmg\b|tomar|utilizar luftal|simeticona|polaramine|norfloxacino|suspens|suspens|suspend|suspensa/i
 export function safeSentences(text: string) {
   return text.split(/(?<=[.;])\s+/).filter(s => !medication.test(s))
+}
+
+/** Professional answers for CT, MRI and US carry the documented inpatient flow, which the patient answer does not need. */
+export function inpatientBlock(exams: Exame[]): string {
+  const modalities = [...new Set(exams.map(e => e.modalidade))]
+  if (modalities.length !== 1 || !/tomografia|ressonancia|ultrassonografia/.test(modalities[0])) return ''
+  const flow = inpatientFlowMarkdown(modalities[0])
+  return flow ? `${flow.replace(/^\*\*[^*]+\*\*/, '**Se o paciente estiver internado**')}\n\nPara gerar o checklist por responsável e prazo (médico, véspera, jejum, enfermagem e setor), use **Checklist do internado** no topo do chat.` : ''
 }
 
 export function composeAnswer(message: string, candidates: Exame[], data: PreparosFile, profile: Profile, requestedMessage = message) {
@@ -20,6 +29,8 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const phoneMap = data.meta.orientacoes_gerais.telefones
   const phones = [...new Set(matched.map(e => /tomografia|ressonancia/.test(e.modalidade) ? phoneMap.tomografia_ressonancia : /ultrassonografia|densitometria/.test(e.modalidade) ? phoneMap.ultrassonografia_densitometria : /radiologia/.test(e.modalidade) ? phoneMap.raio_x_contrastado : phoneMap.imagem_geral))]
   const contact = `**Contato do setor:** ${phones.join('; ')}.`
+  const inpatient = profile === 'professional' ? inpatientBlock(matched) : ''
+  const withInpatient = (text: string) => inpatient ? `${text}\n\n${inpatient}` : text
   const ps = matched.map(e => data.preparos[e.preparo_id])
   // An exam is pending only if its group has no registered content AND no documentary fact applies to it.
   const pending = ps.every((p, i) => p?.status === 'pendente' && !factsForExam(matched[i], p).length)
@@ -27,8 +38,8 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const contrastUnknown = !/com contraste|sem contraste/.test(q) && matched.some(e => /com contraste/.test(normalize(e.nome))) && matched.some(e => /sem contraste/.test(normalize(e.nome)))
   const options = [...new Set(matched.map(e => e.nome_usual))].map(name => `- ${name}`).join('\n')
   const different = new Set(matched.map(e => e.preparo_id)).size > 1
-  if (pending && matched.some(exam => exam.association_review?.status === 'needs-review')) return {reply:'A associação deste procedimento com as orientações disponíveis ainda precisa de revisão. Não tenho um preparo específico documentado para apresentar com segurança; confirme com o setor antes do exame.\n\n' + contact,sources}
-  if (pending) return {reply:`Não tenho o preparo específico cadastrado para informar ${/jeju/.test(q) ? 'o jejum deste exame' : 'as orientações deste exame'}. Isso não significa que o exame dispense preparo. Confirme com o setor antes do exame.${sedationUnknown ? '\n\nO pedido informa com ou sem sedação? Essa informação ajuda a identificar a variante.' : ''}\n\n${contact}`,sources}
+  if (pending && matched.some(exam => exam.association_review?.status === 'needs-review')) return {reply:'A associação deste procedimento com as orientações disponíveis ainda precisa de revisão. Não tenho um preparo específico documentado para apresentar com segurança; confirme com o setor antes do exame.\n\n' + withInpatient(contact),sources}
+  if (pending) return {reply:`Não tenho o preparo específico cadastrado para informar ${/jeju/.test(q) ? 'o jejum deste exame' : 'as orientações deste exame'}. Isso não significa que o exame dispense preparo. Confirme com o setor antes do exame.${sedationUnknown ? '\n\nO pedido informa com ou sem sedação? Essa informação ajuda a identificar a variante.' : ''}\n\n${withInpatient(contact)}`,sources}
   // CT/MRI asked without a body region: the top search hits are arbitrary, so ask the region instead of listing them.
   const regionMissing = matched.length > 1 && matched.every(e => /tomografia|ressonancia/.test(e.modalidade)) && !REGION_TERMS.test(normalize(requestedMessage)) && !REGION_TERMS.test(q)
   const askRegion = {reply:'Para identificar o exame, preciso saber a região do corpo que consta no pedido (por exemplo: abdome, tórax, crânio, coluna ou joelho). Se tiver o pedido em mãos, pode copiar o nome do exame aqui.\n\n' + contact, sources: []}
@@ -51,11 +62,11 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   let usedFacts = factSets[0] ?? []
   // RM com contraste: as condições de jejum do cadastro herdado não foram reconciliadas; as demais instruções não medicamentosas podem ser mostradas.
   const mriContrast = matched.some(e => e.preparo_id === 'rm_contraste')
-  let sentences = documented ? usedFacts.map(f => f.text) : safeSentences(p.orientacoes)
+  let sentences = documented ? usedFacts.map(f => evidenceText(f, profile)) : safeSentences(p.orientacoes)
   if (mriContrast) sentences = sentences.filter(s => !/jeju/i.test(s))
   if (specificQuestion) {
     sentences = sentences.filter(s => (/jeju/.test(asked) && /jeju/i.test(s)) || (/bexiga/.test(asked) && /bexiga/i.test(s)) || (/cheg|antecedencia/.test(asked) && /antecedencia|chegar|comparecer/i.test(normalize(s))))
-    usedFacts = usedFacts.filter(f => sentences.includes(f.text))
+    usedFacts = usedFacts.filter(f => sentences.includes(evidenceText(f, profile)))
   }
   // Tomography: facts cover only some exams, so say when fasting is not registered instead of staying silent.
   if (documented && !specificQuestion && matched.every(e => /^tc_/.test(e.preparo_id)) && !usedFacts.some(f => f.topic === 'fasting')) sentences.push('Não tenho o jejum deste exame cadastrado. Confirme com o setor.')
@@ -68,20 +79,21 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   if (!sentences.length) sentences.push(/bexiga/.test(asked) ? 'Não tenho uma orientação específica sobre bexiga cadastrada para este exame. Isso não permite concluir que esse cuidado seja dispensado. Confirme com o setor.' : 'Não tenho essa informação específica registrada. Confirme com o setor.')
   if (profile === 'patient') sentences = sentences.filter(s => !/aghu|apac|ubs|secretaria de saude/i.test(normalize(s)))
   const blocks = [profile === 'patient' ? `Olá! Para **${(matched.length === 1 ? matched[0].nome_usual : p.titulo).toLowerCase()}**, estas são as informações cadastradas:` : `**${p.titulo}**`, sentences.map(s => /antecedencia|chegar ao servico/i.test(normalize(s)) ? `**Quando chegar:** ${s.replace(/^Comparecer/, 'Compareça')}` : /jejum/i.test(s) ? `**Jejum:** ${s}` : `- ${s}`).join('\n\n')]
-  if (mriContrast && !specificQuestion) blocks.splice(1, 0, '**Jejum:** o cadastro herdado tem condições de jejum que dependem do tipo de ressonância e ainda não foram reconciliadas. Não consigo confirmar o tempo de jejum do seu exame; confirme com o setor.')
+  if (mriContrast && !specificQuestion) blocks.splice(1, 0, '**Jejum:** o cadastro herdado tem condições de jejum que dependem do tipo de ressonância e ainda não foram reconciliadas. Não consigo confirmar o tempo de jejum ' + (profile === 'patient' ? 'do seu exame' : 'deste exame') + '; confirme com o setor.')
   if (!documented && !specificQuestion && p.observacoes) blocks.push(safeSentences(p.observacoes).filter(s => profile !== 'patient' || !/aghu|apac|ubs|secretaria de saude/.test(normalize(s))).join(' '))
-  if (medication.test(p.orientacoes + ' ' + (p.observacoes ?? '')) && !specificQuestion) blocks.push('**Medicamentos:** orientações sobre medicamentos precisam ser confirmadas com o médico ou com a UDI; não altere seu tratamento com base no chat.')
+  if (medication.test(p.orientacoes + ' ' + (p.observacoes ?? '')) && !specificQuestion) blocks.push(profile === 'patient' ? '**Medicamentos:** orientações sobre medicamentos precisam ser confirmadas com o médico ou com a UDI; não altere seu tratamento com base no chat.' : '**Medicamentos:** o cadastro cita medicamentos neste preparo. Dose e esquema precisam ser confirmados com o protocolo da UDI antes da prescrição; no paciente internado, eles precisam constar na prescrição enviada junto.')
   if (documented) blocks.push(profile === 'patient' ? '**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital e não representam o preparo completo. Confirme com o setor antes do exame, inclusive sobre medicamentos, se houver.' : '**Situação da informação:** trechos localizados no documento recebido, com validação da UDI pendente. Estas informações são parciais; confirme o preparo completo com o setor, inclusive orientações adicionais e sobre medicamentos, quando houver.')
   else if (p.status === 'parcial') blocks.push('O cadastro é parcial. Confirme com o setor as orientações não registradas.')
   else blocks.push('**Origem da informação:** cadastro herdado do projeto; a fonte documental deste conteúdo ainda não foi reconciliada.')
   const serviceLimits = specificQuestion ? [] : restrictionsForExams(matched)
-  if (serviceLimits.length) blocks.push('**Antes de vir:**\n\n' + serviceLimits.map(r => `- ${r.text}`).join('\n'))
+  if (serviceLimits.length) blocks.push((profile === 'patient' ? '**Antes de vir:**' : '**Restrições do serviço:**') + '\n\n' + serviceLimits.map(r => `- ${evidenceText(r, profile)}`).join('\n'))
   if (profile === 'professional') blocks.push(matched.map(e => `${e.nome} (código: ${e.sigla})`).join('\n'))
   if (profile === 'patient') {
     blocks.push('**O que levar:**\n\n- Documento de identificação com foto\n- Cartão do SUS\n- Cartão do Hospital\n- Pedido médico original\n- Exames anteriores relacionados, se houver')
     if (!sentences.some(s => /antecedencia|chegar ao servico/i.test(normalize(s)))) blocks.push(`**Quando chegar:** ${arrival}`)
   }
   blocks.push(contact)
+  if (inpatient) blocks.push(inpatient)
   if (profile === 'patient') blocks.push('Se tiver outra dúvida sobre o exame, pode perguntar. Estou à disposição!')
   return {reply:blocks.filter(Boolean).join('\n\n'), sources}
 }

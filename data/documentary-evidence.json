@@ -34,6 +34,7 @@
     {
       "id": "us-full-abdomen-bladder",
       "text": "Compareça com a bexiga cheia. No setor, você também receberá orientação sobre a ingestão de água.",
+      "textProfessional": "O paciente deve chegar com a bexiga cheia. No setor, ele também recebe orientação sobre a ingestão de água.",
       "topic": "bladder",
       "appliesTo": [
         "USABT",
@@ -301,6 +302,7 @@
     {
       "id": "tc-contrast-allergy",
       "text": "O cadastro registra contraindicação ao exame com contraste para quem já teve reação alérgica a contraste iodado. Se isso aconteceu com você, informe ao setor antes do exame.",
+      "textProfessional": "O cadastro registra contraindicação ao exame com contraste para pacientes com reação alérgica prévia a contraste iodado. Se o paciente tem esse histórico, informe ao setor antes do exame.",
       "topic": "contraindication",
       "rule": {
         "modality": "tomografia_computadorizada",
@@ -1518,6 +1520,7 @@
     {
       "id": "rm-metal-implant",
       "text": "Se você tem prótese, pino, placa, marcapasso ou outro implante no corpo, informe ao setor antes do exame; o material precisa ser informado no questionário.",
+      "textProfessional": "Se o paciente tem prótese, pino, placa, marcapasso ou outro implante, informe ao setor antes do exame; o material precisa constar no questionário.",
       "topic": "restriction",
       "rule": {
         "modality": "ressonancia_magnetica",
@@ -1745,6 +1748,7 @@
     {
       "id": "rm-pregnancy",
       "text": "Pacientes grávidas precisam preencher um termo específico antes da ressonância. Informe ao setor que está grávida antes do exame.",
+      "textProfessional": "Pacientes grávidas precisam preencher um termo específico antes da ressonância. Informe a gestação ao setor antes do exame.",
       "topic": "restriction",
       "rule": {
         "modality": "ressonancia_magnetica",

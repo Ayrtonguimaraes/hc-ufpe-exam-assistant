@@ -3,7 +3,7 @@ import { normalize } from './search'
 import type { EvidenceReference, Exame } from './types'
 
 type Trigger = { type: 'weight' | 'age' | 'terms'; above?: number; below?: number; terms?: string[] }
-type Restriction = { excludesExam?: boolean; id: string; text: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; trigger?: Trigger; showWithExam?: boolean }
+type Restriction = { excludesExam?: boolean; id: string; text: string; textProfessional?: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; trigger?: Trigger; showWithExam?: boolean }
 
 // Facts with a trigger fire from the user's own words; restrictions are also reminded with exams.
 const triggerable = (registry.facts as Restriction[]).filter(f => f.trigger)
@@ -28,7 +28,7 @@ function triggered(t: Trigger, q: string): boolean {
 
 function asEvidence(r: Restriction): EvidenceReference {
   const source = registry.sources[r.sourceId as keyof typeof registry.sources]
-  return { factId: r.id, text: r.text, topic: r.topic, sourceTitle: source.title, sourceHash: source.sha256, locator: r.locator, quote: r.quote, validation: 'pending-udi' }
+  return { factId: r.id, text: r.text, ...(r.textProfessional ? { textProfessional: r.textProfessional } : {}), topic: r.topic, sourceTitle: source.title, sourceHash: source.sha256, locator: r.locator, quote: r.quote, validation: 'pending-udi' }
 }
 
 /** True when a triggered fact means the exam is not done (weight, age, contraindication...), so no preparation should follow it. */
