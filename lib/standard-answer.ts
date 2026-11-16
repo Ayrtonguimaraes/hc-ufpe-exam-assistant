@@ -114,7 +114,7 @@ export function noCatalogExamAnswer(message: string, profile: Profile): { reply:
   const q = normalize(message)
   const greet = (text: string) => (profile === "patient" ? "Olá!\n\n" : "") + text + (profile === "patient" ? "\n\nSe tiver outra dúvida sobre o exame, pode perguntar. Estou à disposição!" : "")
   const evidenceOf = (items: StandardItem[]): EvidenceReference[] => items.map(i => ({ factId: i.id, text: i.texto, topic: i.tipo, sourceTitle: sources[i.fonte.id]?.title ?? i.fonte.id, sourceHash: sources[i.fonte.id]?.sha256 ?? "", locator: i.fonte.local, quote: i.fonte.trecho, validation: "pending-udi" }))
-  if (/\benema\b/.test(q)) {
+  if (/\b(enema|clister)\b/.test(q)) {
     const items = allItems.filter(i => /rx_enema_opaco/.test(i.aplicaA.grupo ?? ""))
     const body = profile === "patient"
       ? "O enema opaco não aparece no catálogo de exames que recebemos do hospital, mas existem folhas de preparo para ele, com versões diferentes para adulto e para criança. Em todas, o preparo tem dieta nos dias anteriores, laxantes que precisam ser orientados pelo médico que pediu o exame e jejum no dia do exame. Peça a folha de preparo ao setor e confirme qual versão vale para você.\n\n**Contato do setor (raio-X contrastado):** (81) 2126 3872."

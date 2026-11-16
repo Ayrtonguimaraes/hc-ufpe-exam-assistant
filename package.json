@@ -20,8 +20,9 @@
     "audit:catalog": "node scripts/audit-catalog.mjs",
     "audit:catalog:check": "node scripts/audit-catalog.mjs --check --strict",
     "audit:evidence": "node scripts/verify-documentary-evidence.mjs",
-    "data:check": "node scripts/verify-preparation-standard.mjs",
-    "data:report": "node scripts/verify-preparation-standard.mjs --write"
+    "data:check": "node scripts/verify-preparation-standard.mjs && node scripts/build-udi-review.mjs",
+    "data:report": "node scripts/verify-preparation-standard.mjs --write && node scripts/build-udi-review.mjs --write",
+    "data:review": "node scripts/build-udi-review.mjs --write"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

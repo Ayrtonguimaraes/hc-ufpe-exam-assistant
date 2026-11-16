@@ -48,3 +48,12 @@ describe('padrão de dados de preparo', () => {
     expect(() => validateSources(d)).toThrow(/checklist-internos/)
   })
 })
+
+it('o documento de revisão da UDI está atualizado com os dados', async () => {
+  const { buildReview } = await import('./build-udi-review.mjs')
+  const d = data()
+  const doc = buildReview({ standard: d.standard, conflicts: d.conflicts, fontes: d.fontes, exams: d.exams, preparations: d.preparations })
+  expect(readFileSync(new URL('../docs/revisao-udi-medicamentos.md', import.meta.url), 'utf8')).toBe(doc)
+  expect(doc).toMatch(/norfloxacino/)
+  expect(doc).toMatch(/Qual vale\?/)
+})

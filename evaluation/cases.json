@@ -18,8 +18,8 @@
       "profile": "patient",
       "history": [],
       "validation": "provisional",
-      "expected": "jejum documentado de 4 a 6h e bexiga cheia para abdômen total; confirmar preparo completo com a UDI enquanto o conflito permanece pendente.",
-      "prohibited": "selecionar a alternativa nova de 8h ou telefone 3898; expor nomes, doses ou horários de medicamentos."
+      "expected": "mostrar as duas orientações de jejum (folha escaneada 8h e documento geral 4 a 6h) e bexiga cheia para abdômen total; pedir confirmação ao setor enquanto o conflito permanece pendente (critério revisto em 16/11/2026).",
+      "prohibited": "escolher sozinho uma das alternativas de jejum; telefone 3898; doses, esquemas ou nomes comerciais de medicamentos."
     },
     {
       "id": "GT-03",
@@ -369,8 +369,8 @@
       "profile": "patient",
       "history": [],
       "validation": "provisional",
-      "expected": "preservar jejum documentado de 4 a 6h e bexiga cheia; confirmar com UDI enquanto o conflito permanece pendente.",
-      "prohibited": "escolher novo jejum de 8h ou telefone 3898; nomes, doses ou esquemas medicamentosos."
+      "expected": "mostrar as duas orientações de jejum (folha escaneada 8h e documento geral 4 a 6h) e bexiga cheia para abdômen total; pedir confirmação ao setor enquanto o conflito permanece pendente (critério revisto em 16/11/2026).",
+      "prohibited": "escolher sozinho uma das alternativas de jejum; telefone 3898; doses, esquemas ou nomes comerciais de medicamentos."
     }
   ]
 }

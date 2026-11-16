@@ -3,7 +3,7 @@ import { inpatientFlowMarkdown } from './inpatient-checklist'
 import { normalize } from './search'
 import { arrivalInstruction } from './preparation-policy'
 import { REGION_TERMS } from './request-policy'
-import { standardPreparation } from './standard-answer'
+import { answerItems, standardPreparation } from './standard-answer'
 import { restrictionsForExams } from './service-restrictions'
 import type { Exame, PreparosFile, Profile, Source } from './types'
 
@@ -56,7 +56,9 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   if (regionMissing && (sedationUnknown || contrastUnknown || different)) return askRegion
   if (sedationUnknown || contrastUnknown || different) return {reply:`Preciso confirmar qual exame consta no pedido antes de detalhar o preparo. ${sedationUnknown ? 'É com ou sem sedação? ' : ''}${contrastUnknown ? 'É com ou sem contraste? ' : ''}${different ? 'Qual destes exames consta no pedido?\n\n' + options : ''}\n\n${contact}`,sources}
   const factSets = matched.map((exam, i) => factsForExam(exam, ps[i]))
-  if (new Set(factSets.map(fs => fs.map(f => f.factId).sort().join(','))).size > 1) return regionMissing ? askRegion : {reply:'Encontrei variantes com informações diferentes. Qual delas consta no pedido?\n\n' + options + '\n\n' + contact,sources}
+  // Several exams of the same migrated group with the same items (e.g. the two urography codes) share one answer.
+  const sameItems = answerItems(matched[0]).length > 0 && matched.every(e => e.preparo_id === matched[0].preparo_id && JSON.stringify(answerItems(e).map(i => i.id)) === JSON.stringify(answerItems(matched[0]).map(i => i.id)))
+  if (!sameItems && new Set(factSets.map(fs => fs.map(f => f.factId).sort().join(','))).size > 1) return regionMissing ? askRegion : {reply:'Encontrei variantes com informações diferentes. Qual delas consta no pedido?\n\n' + options + '\n\n' + contact,sources}
   const p = ps[0]
   if (!p) return null
   const specificQuestion = /jeju|bexiga|antecedencia|quanto tempo.*cheg|com quanto tempo/.test(asked) && !/qual.*preparo|como.*prepar/.test(asked)
@@ -69,19 +71,18 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
     sources,
   }
   // Exams migrated to the standardized single source (data/orientacoes-preparo.json) are answered from it.
-  const standard = matched.length === 1 ? standardPreparation(matched[0], profile, asked) : null
+  const standard = sameItems ? standardPreparation(matched[0], profile, asked) : null
   if (standard) {
-    sources[0].evidence = standard.evidence
-    sources[0].evidenceStatus = 'documentary-only'
+    for (const source of sources) { source.evidence = standard.evidence; source.evidenceStatus = 'documentary-only' }
     const arrival = arrivalInstruction([p.orientacoes])
     const out = [
-      profile === 'patient' ? `Olá! Para **${matched[0].nome_usual.toLowerCase()}**, estas são as orientações dos documentos do hospital:` : `**${p.titulo}**`,
+      profile === 'patient' ? `Olá! Para **${(matched.length === 1 ? matched[0].nome_usual : p.titulo).toLowerCase()}**, estas são as orientações dos documentos do hospital:` : `**${p.titulo}**`,
       ...standard.lines,
       profile === 'patient'
-        ? `**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital${standard.conflict ? ', e há folhas com orientações diferentes' : ''}. Confirme com o setor antes do exame.`
+        ? `**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital e não representam o preparo completo${standard.conflict ? '; há folhas com orientações diferentes' : ''}. Confirme com o setor antes do exame.`
         : `**Situação da informação:** itens do formato padronizado, com fonte e validação da UDI pendente${standard.conflict ? '; há folhas divergentes' : ''}. A dose e a classe são as da folha e da classificação proposta pela equipe.`,
     ]
-    if (profile === 'professional') out.push(`${matched[0].nome} (código: ${matched[0].sigla})`)
+    if (profile === 'professional') out.push(matched.map(e => `${e.nome} (código: ${e.sigla})`).join('\n'))
     if (profile === 'patient' && !specificQuestion) out.push('**O que levar:**\n\n- Documento de identificação com foto\n- Cartão do SUS\n- Cartão do Hospital\n- Pedido médico original\n- Exames anteriores relacionados, se houver', `**Quando chegar:** ${arrival}`)
     out.push(contact)
     if (inpatient) out.push(inpatient)

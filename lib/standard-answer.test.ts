@@ -93,3 +93,18 @@ describe("exames com folha e sem código no catálogo", () => {
     expect(r.reply).not.toMatch(/Laécio/)
   })
 })
+
+describe("grupo com mais de um código", () => {
+  it("as duas urografias e o grupo de esôfago respondem pelo formato padronizado mesmo quando a busca acha os dois", () => {
+    const uro = composeAnswer("urografia precisa de jejum?", exams.filter(e => ["RXUR1", "RXUR4"].includes(e.sigla)), preparations, "patient")!
+    expect(uro.reply).toMatch(/Jejum absoluto de 12 horas/)
+    expect(uro.sources.every(s => s.evidenceStatus === "documentary-only")).toBe(true)
+    const eso = composeAnswer("exame de esôfago, qual o jejum?", exams.filter(e => ["RXESO", "RXEED"].includes(e.sigla)), preparations, "patient")!
+    expect(eso.reply).toMatch(/Jejum de 6 horas/)
+  })
+
+  it("clister opaco é o enema", async () => {
+    const { noCatalogExamAnswer } = await import("./standard-answer")
+    expect(noCatalogExamAnswer("clister opaco preparo", "patient")!.reply).toMatch(/enema opaco/)
+  })
+})
