@@ -19,6 +19,7 @@ import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { restrictionsForQuestion } from "@/lib/service-restrictions"
 import { asksInpatientFlow } from "@/lib/inpatient-checklist"
 import { interpretQuestion, answerFromInterpretation, MODALITY_CUE } from "@/lib/question-interpreter"
+import { answerDropsNamedTerm } from "@/lib/named-terms"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -259,7 +260,9 @@ export async function POST(req: Request) {
         !["count", "missing", "attributes", "documents"].includes(directIntent ?? "") && !wantsAggregateList(message) && !wantsListaRaiox(message) && !wantsFluxoRaiox(message)) {
       const interpretation = await interpretQuestion(message, history)
       const result = interpretation ? answerFromInterpretation(interpretation, profile, history, message) : null
-      if (result) return Response.json({ ...result, mocked: true, reason: "llm-interpretation", interpretation })
+      // The user wrote a technical exam name (e.g. "uretrocistografia") and the model's answer is about an exam without it
+      // (it had translated the name into "vias urinárias"): ignore the model and let the catalog search answer.
+      if (result && !answerDropsNamedTerm(message, result.sources, exames)) return Response.json({ ...result, mocked: true, reason: "llm-interpretation", interpretation })
     }
 
     if (asksMedicationDecision(message) || restrictionsForQuestion(message, resolveExames(message, history)).length || deterministicIntent(message) || (!wantsAggregateList(message) && examModalityChoices(conversationQuery(message, history), exames).length > 0)) {

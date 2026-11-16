@@ -23,6 +23,17 @@ it.each([
   expect(data.reply.split("\n")[0]).not.toMatch(/ressonancia|ressonância|ultrassonografia/i)
 })
 
+it("nome técnico com mais de um exame no catálogo não aceita a troca feita pelo modelo", async () => {
+  process.env.GROQ_API_KEY = "test"
+  const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(loose) } }] }) }))
+  vi.stubGlobal("fetch", fetchSpy)
+  const data = await (await ask("uretrocistografia qual o preparo")).json()
+  expect(fetchSpy).toHaveBeenCalledTimes(1)
+  expect(data.reason).not.toBe("llm-interpretation")
+  expect(data.reply).toMatch(/uretrocistografia/i)
+  expect(data.reply.split("\n")[0]).not.toMatch(/ressonancia|ressonância|ultrassonografia/i)
+})
+
 it("linguagem leiga, com vários candidatos no catálogo, continua passando pelo modelo", async () => {
   process.env.GROQ_API_KEY = "test"
   const lay = { modalidade: "radiologia_convencional", exame: "tórax", contraste: null, sedacao: null, lado: null, topico: "preparo", varios_exames: false }
