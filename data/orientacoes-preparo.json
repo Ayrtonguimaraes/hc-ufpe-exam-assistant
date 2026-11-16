@@ -1428,6 +1428,84 @@
         "trecho": "Trazer exames anteriores. - Chegar na Unidade de Hemodinâmica com acompanhante às 12 horas para organizar o internamento."
       },
       "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "us-bexiga-cheia-doc",
+      "aplicaA": {
+        "exames": [
+          "USABT",
+          "USAPU",
+          "USGIN",
+          "USHOM"
+        ]
+      },
+      "tipo": "bexiga",
+      "texto": "Comparecer com a bexiga cheia; no setor, o paciente também é orientado a tomar água para isso.",
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P34–35",
+        "trecho": "EXAMES: Vias urinárias, Abdômen total, Ultrassonografia pélvica abdominal / O paciente esteja com a bexiga cheia, no setor ele também será orientado a ingerir água para tal."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "us-doppler-renal-jejum",
+      "aplicaA": {
+        "exames": [
+          "USAR"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 8 horas antes do exame.",
+      "momento": {
+        "duracao": "PT8H"
+      },
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P24–25",
+        "trecho": "EXAME: Ultrassonografia com doppler de artérias renais / Manter jejum durante as 8h que antecedem o exame;"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-entero-jejum",
+      "aplicaA": {
+        "exames": [
+          "ENTTC"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 8 horas antes do exame.",
+      "momento": {
+        "duracao": "PT8H"
+      },
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-tc-rm",
+        "local": "P97",
+        "trecho": "Enterotomografia: Jejum de 08h + preparo (trazer 01 caixa de muvinlax OU macrogol)"
+      },
+      "fontesAdicionais": [
+        {
+          "id": "folha-tc",
+          "local": "p1"
+        }
+      ],
+      "estado": "documental-pendente-udi"
     }
   ],
   "notaClassificacao": "Os campos classe, indispensavel e exigeReceita são classificação proposta pela equipe do projeto, não estão nas fontes e não foram validados pela UDI. exigeReceita indica se o medicamento exige receita para ser comprado; no paciente internado, todo medicamento de preparo precisa estar na prescrição."

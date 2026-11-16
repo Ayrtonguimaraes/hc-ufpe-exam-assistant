@@ -7,9 +7,10 @@ it("mamografia mantém a proibição de medicação na pele e não mostra aviso 
   expect(r).not.toMatch(/\*\*Medicamentos:\*\*/)
 })
 
-it("histerossalpingografia não deixa instrução de remédio solta", () => {
+it("histerossalpingografia mostra os remédios do preparo sem dose", () => {
   const r = generateMockResponse("histerossalpingografia qual o preparo", "patient", []).reply
-  expect(r).not.toMatch(/analg[eé]sico|antiespasm|buscop|bisacodil|dulcolax/i)
-  expect(r).toMatch(/\*\*Medicamentos:\*\*/)
+  expect(r).toMatch(/\*\*Remédios do preparo:\*\*/)
+  expect(r).toMatch(/bisacodil/)
+  expect(r).not.toMatch(/\b5 ?mg\b|comprimidos|40 gotas|dulcolax/i)
   expect(r).toMatch(/absorvente/)
 })

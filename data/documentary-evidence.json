@@ -294,7 +294,7 @@
     },
     {
       "id": "tc-entero-additional",
-      "text": "Este exame tem um preparo adicional, além do jejum. Confirme com o setor como realizá-lo.",
+      "text": "Além do jejum, o preparo inclui um laxante: trazer 1 caixa de macrogol (por exemplo, Muvinlax). Confirme com o setor como usar.",
       "topic": "note",
       "rule": {
         "modality": "tomografia_computadorizada",

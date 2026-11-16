@@ -20,6 +20,7 @@ import { restrictionsForQuestion } from "@/lib/service-restrictions"
 import { asksInpatientFlow } from "@/lib/inpatient-checklist"
 import { interpretQuestion, answerFromInterpretation, asksNonPreparationTopic, oneExamAtATime, MODALITY_CUE } from "@/lib/question-interpreter"
 import { answerDropsNamedTerm, namesSeveralExams } from "@/lib/named-terms"
+import { noCatalogExamAnswer } from "@/lib/standard-answer"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -247,6 +248,10 @@ export async function POST(req: Request) {
       const result = generateMockResponse(message, profile, history)
       return Response.json({ ...result, mocked: true, reason: "inpatient-flow" })
     }
+
+    // Exams with preparation sheets but no code in the catalog (enema, CT-guided lung biopsy) answer from the sheets.
+    const noCatalog = noCatalogExamAnswer(message, profile)
+    if (noCatalog) return Response.json({ ...noCatalog, mocked: true, reason: "standard-sheet" })
 
     // Free text: a language model interprets the question into validated fields; the catalog answers.
     // Medication decisions, service restrictions and catalog listings keep their deterministic paths.
