@@ -565,13 +565,13 @@
       "turnos": [
         "histerossalpingografia preparo"
       ],
-      "esperado": "Janela do 6º ao 12º dia; DIU contraindica; jejum 3h; exames a trazer",
+      "esperado": "Janela do 6º ao 12º dia; DIU contraindica; jejum 3h; exames a trazer; remédios do preparo sem dose (critério revisto em 16/11/2026)",
       "deve": [
         "6º|6o|sexto",
         "diu"
       ],
       "naoDeve": [
-        "analgesico de costume"
+        "\\b5 ?mg\\b|comprimidos|40 gotas|dulcolax|buscop"
       ]
     },
     {
