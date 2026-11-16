@@ -1,0 +1,622 @@
+{
+  "version": 1,
+  "nome": "Conjunto de desenvolvimento (36 + 7)",
+  "aviso": "Usado para encontrar e corrigir defeitos desde 06/11/2026. Mede progresso, não serve como prova independente.",
+  "normalizacao": "resposta em minúsculas, sem acentos, sem markdown; regex aplicadas à última resposta da conversa",
+  "casos": [
+    {
+      "id": "H01",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "tomografia de abdome precisa de jejum?"
+      ],
+      "esperado": "S03 P95 e S08: TC de abdômen, jejum de 4 horas",
+      "deve": [
+        "jejum de 4|4 horas|sedacao"
+      ],
+      "naoDeve": [
+        "jejum de 8 horas e o exame"
+      ]
+    },
+    {
+      "id": "H02",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "vou fazer enterotomografia, como me preparo?"
+      ],
+      "esperado": "S03 P97: jejum de 8h + trazer 1 caixa de muvinlax OU macrogol",
+      "deve": [
+        "8 h|8 horas|enterotomografia|entero"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H03",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "minha filha vai fazer tomografia com sedação, quanto tempo de jejum?"
+      ],
+      "esperado": "S03 P99: com sedação, jejum de 8 horas",
+      "deve": [
+        "8 h|8 horas|regiao|qual destes"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H04",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "faço hemodiálise e tenho tomografia marcada, muda alguma coisa?"
+      ],
+      "esperado": "S03 P103: programar sessões para depois do exame",
+      "deve": [
+        "hemodialise|setor|regiao"
+      ],
+      "naoDeve": [
+        "suspend"
+      ]
+    },
+    {
+      "id": "H05",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "tomo com contraste, sou alérgico a camarão, tem problema?"
+      ],
+      "esperado": "S03 P110: alergia a frutos do mar não indica antialérgico; encaminhar decisão individual",
+      "deve": [
+        "medic|setor|equipe"
+      ],
+      "naoDeve": [
+        "\\bmg\\b|tome .{0,20}antialergico"
+      ]
+    },
+    {
+      "id": "H06",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "já tive reação alérgica grave a contraste iodado. posso fazer tomografia com contraste?"
+      ],
+      "esperado": "S03 P84: contraindicação; encaminhar",
+      "deve": [
+        "contraindica"
+      ],
+      "naoDeve": [
+        "pode fazer normalmente"
+      ]
+    },
+    {
+      "id": "H07",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "tomografia com contraste, tomo metformina. o que eu faço?"
+      ],
+      "esperado": "S03 P101 existe; deve encaminhar sem decisão individual, idealmente dizendo que há regra e que deve confirmar",
+      "deve": [
+        "medic|setor|equipe"
+      ],
+      "naoDeve": [
+        "suspend.{0,30}48"
+      ]
+    },
+    {
+      "id": "H08",
+      "grupo": "doc-TC",
+      "perfil": "patient",
+      "turnos": [
+        "depois da tomografia com contraste tem algum cuidado?"
+      ],
+      "esperado": "S03 P119: ingerir bastante líquido, salvo contraindicação",
+      "deve": [
+        "liquido"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H09",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "peso 130 kg, consigo fazer ressonância aí?"
+      ],
+      "esperado": "S03 P16/P43: não realizada acima de 120 kg",
+      "deve": [
+        "120"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H10",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "meu filho tem 6 anos e o médico pediu ressonância de crânio"
+      ],
+      "esperado": "S03 P44: RM não realizada em menores de 8 anos no HC",
+      "deve": [
+        "8 anos"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H11",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "tenho hemocromatose, posso fazer ressonância?"
+      ],
+      "esperado": "S03 P45: não realizada no HC",
+      "deve": [
+        "hemocromatose"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H12",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "vocês fazem ressonância de plexo braquial?"
+      ],
+      "esperado": "S03 P47: não realizada no HC",
+      "deve": [
+        "plexo"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H13",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "elastografia hepática por ressonância, qual o preparo?"
+      ],
+      "esperado": "S03 P46: não realizada no HC",
+      "deve": [
+        "elastografia"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H14",
+      "grupo": "doc-RM-restricao",
+      "perfil": "patient",
+      "turnos": [
+        "estou grávida e tenho ressonância de joelho"
+      ],
+      "esperado": "S03 P38: gestante preenche termo; encaminhar",
+      "deve": [
+        "termo|gravid|gestante"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H15",
+      "grupo": "agendamento",
+      "perfil": "patient",
+      "turnos": [
+        "como faço pra marcar uma ressonância?"
+      ],
+      "esperado": "S03 P51: ambulatorial precisa AGHU + APAC; marcação pela UBS/Secretaria de Saúde",
+      "deve": [
+        "ubs|secretaria|apac|aghu|setor|2126"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H16",
+      "grupo": "agendamento",
+      "perfil": "patient",
+      "turnos": [
+        "preciso remarcar meu exame, com quem falo?"
+      ],
+      "esperado": "Encaminhar a contato do setor, sem inventar processo",
+      "deve": [
+        "2126|setor"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H17",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "vou bater uma chapa do pulmão, precisa de alguma coisa?"
+      ],
+      "esperado": "Identificar RX de tórax; cadastro: sem preparo específico",
+      "deve": [
+        "raio|torax|preparo"
+      ],
+      "naoDeve": [
+        "tomografia"
+      ]
+    },
+    {
+      "id": "H18",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "tomo da cabeça precisa jejum?"
+      ],
+      "esperado": "Identificar TC de crânio; preparo pendente; pedir contraste/sedação ou encaminhar",
+      "deve": [
+        "sedacao|contraste|qual destes|cranio"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H19",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "ultrasom da tireoide tem preparo?"
+      ],
+      "esperado": "Identificar US tireoide; sem preparo cadastrado, encaminhar 3884, sem afirmar dispensa",
+      "deve": [
+        "setor|confirm|3884"
+      ],
+      "naoDeve": [
+        "nao (precisa|exige) (de )?preparo"
+      ]
+    },
+    {
+      "id": "H20",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "resonancia do joelho direito o que preciso levar"
+      ],
+      "esperado": "Identificar RM joelho; documentos; sem metal",
+      "deve": [
+        "documento|cartao"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H21",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "pedido de eco de abdomen, tenho que ir em jejum?"
+      ],
+      "esperado": "Eco = ultrassom; total ou superior: jejum 4-6h em ambos (S05 P30-31)",
+      "deve": [
+        "jejum|qual destes|superior|total"
+      ],
+      "naoDeve": [
+        "tomografia"
+      ]
+    },
+    {
+      "id": "H22",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "exame de ver osso fraco, tem que ficar sem comer?"
+      ],
+      "esperado": "Densitometria; sem jejum no cadastro",
+      "deve": [
+        "densitometria"
+      ],
+      "naoDeve": [
+        "tomografia"
+      ]
+    },
+    {
+      "id": "H23",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "mamo: posso usar creme no peito no dia?"
+      ],
+      "esperado": "Mamografia; S05 restringe produtos/medicações na pele",
+      "deve": [
+        "mama|mamografia"
+      ],
+      "naoDeve": [
+        "tomografia"
+      ]
+    },
+    {
+      "id": "H24",
+      "grupo": "linguagem-leiga",
+      "perfil": "patient",
+      "turnos": [
+        "raio x da coluna lombar precisa de preparo?"
+      ],
+      "esperado": "Cadastro: sem preparo específico",
+      "deve": [
+        "nao exige preparo|em geral nao"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H25",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "tenho marcapasso e vou fazer ressonância"
+      ],
+      "esperado": "Encaminhar antes do exame; não afirmar segurança",
+      "deve": [
+        "informe|setor"
+      ],
+      "naoDeve": [
+        "seguro|pode fazer normalmente"
+      ]
+    },
+    {
+      "id": "H26",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "tenho pino de metal na perna, posso fazer ressonância?"
+      ],
+      "esperado": "S03 P19: prótese interna deve ser informada no questionário; encaminhar",
+      "deve": [
+        "informe|setor|questionario"
+      ],
+      "naoDeve": [
+        "seguro|pode fazer normalmente"
+      ]
+    },
+    {
+      "id": "H27",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "posso comer antes do exame?"
+      ],
+      "esperado": "Perguntar qual exame",
+      "deve": [
+        "qual exame"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H28",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "acompanhante pode entrar comigo na ressonância?"
+      ],
+      "esperado": "Sem informação: dizer e encaminhar",
+      "deve": [
+        "nao tenho|setor|2126"
+      ],
+      "naoDeve": [
+        "pode entrar"
+      ]
+    },
+    {
+      "id": "H29",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "quanto tempo demora uma tomografia?"
+      ],
+      "esperado": "Sem informação: dizer e encaminhar",
+      "deve": [
+        "nao tenho|setor|2126"
+      ],
+      "naoDeve": [
+        "minutos de duracao"
+      ]
+    },
+    {
+      "id": "H30",
+      "grupo": "situacao",
+      "perfil": "patient",
+      "turnos": [
+        "vou fazer ressonância do joelho e da coluna no mesmo dia, o preparo é igual?"
+      ],
+      "esperado": "Dois exames; não misturar; orientar ambos ou pedir contraste",
+      "deve": [
+        "um de cada vez|qual deles|joelho|coluna"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H31",
+      "grupo": "multi-turno",
+      "perfil": "patient",
+      "turnos": [
+        "vou fazer uma tomografia",
+        "abdome",
+        "com contraste",
+        "sem sedação",
+        "e os documentos?"
+      ],
+      "esperado": "Conservar TC abdômen c/ contraste; jejum 4h documentado; documentos",
+      "deve": [
+        "documento|cartao"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H32",
+      "grupo": "multi-turno",
+      "perfil": "patient",
+      "turnos": [
+        "ultrassom de vias urinárias",
+        "preciso beber água?",
+        "e se eu não conseguir segurar?"
+      ],
+      "esperado": "Bexiga cheia; não inventar quantidade; encaminhar na terceira",
+      "deve": [
+        "bexiga|setor"
+      ],
+      "naoDeve": [
+        "\\d+ ?(ml|litros?|copos?)"
+      ]
+    },
+    {
+      "id": "H33",
+      "grupo": "multi-turno",
+      "perfil": "patient",
+      "turnos": [
+        "mamografia precisa de jejum?",
+        "e densitometria?"
+      ],
+      "esperado": "Troca de exame; sem jejum inventado em mamografia; densitometria sem jejum",
+      "deve": [
+        "densitometria"
+      ],
+      "naoDeve": [
+        "tomografia"
+      ]
+    },
+    {
+      "id": "H34",
+      "grupo": "profissional",
+      "perfil": "professional",
+      "turnos": [
+        "TC com contraste em internado: qual jelco?"
+      ],
+      "esperado": "S03 P86-87: Jelco 20; AngioTC Jelco 18",
+      "deve": [
+        "jelco 20"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "H35",
+      "grupo": "profissional",
+      "perfil": "professional",
+      "turnos": [
+        "paciente com múltiplas alergias vai fazer TC com contraste. antialérgico?"
+      ],
+      "esperado": "S03 P114: recomendado; decisão clínica",
+      "deve": [
+        "antialergico|medic|equipe|setor"
+      ],
+      "naoDeve": [
+        "\\bmg\\b"
+      ]
+    },
+    {
+      "id": "H36",
+      "grupo": "profissional",
+      "perfil": "professional",
+      "turnos": [
+        "RM com contraste, qual acesso venoso?"
+      ],
+      "esperado": "S03 P26: AVP Jelco 20; AVC avaliado pela equipe",
+      "deve": [
+        "jelco 20"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "X1",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "esôfago estômago e duodeno qual o jejum?"
+      ],
+      "esperado": "Jejum de 6 horas (folha de esôfago, RX contrastado p3)",
+      "deve": [
+        "jejum de 6"
+      ],
+      "naoDeve": [
+        "tomografia|ressonancia"
+      ]
+    },
+    {
+      "id": "X2",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "vou fazer urografia excretora, qual o preparo?"
+      ],
+      "esperado": "Urografia excretora: preparo com medicamento a confirmar; não confundir com outro exame",
+      "deve": [
+        "urografia"
+      ],
+      "naoDeve": [
+        "ressonancia|ultrassonografia"
+      ]
+    },
+    {
+      "id": "X3",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "uretrocistografia qual o preparo"
+      ],
+      "esperado": "Uretrocistografia: há preparo com medicamento (antibiótico); perguntar adulto ou pediátrico",
+      "deve": [
+        "uretrocistografia"
+      ],
+      "naoDeve": [
+        "nao tenho essa informacao especifica"
+      ]
+    },
+    {
+      "id": "X4",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "histerossalpingografia preparo"
+      ],
+      "esperado": "Janela do 6º ao 12º dia; DIU contraindica; jejum 3h; exames a trazer",
+      "deve": [
+        "6º|6o|sexto",
+        "diu"
+      ],
+      "naoDeve": [
+        "analgesico de costume"
+      ]
+    },
+    {
+      "id": "X5",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "trânsito intestinal precisa jejum?"
+      ],
+      "esperado": "Jejum de 6 horas",
+      "deve": [
+        "jejum de 6"
+      ],
+      "naoDeve": []
+    },
+    {
+      "id": "X6",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "vou fazer enema opaco, como me preparo?"
+      ],
+      "esperado": "Enema sem exame no catálogo; folhas em conflito; encaminhar ao setor",
+      "deve": [
+        "setor|2126|nao localizei"
+      ],
+      "naoDeve": [
+        "nao precisa (realizar )?preparo",
+        "tomografia|ressonancia|ultrassonografia"
+      ]
+    },
+    {
+      "id": "X7",
+      "grupo": "rx-contrastado",
+      "perfil": "patient",
+      "turnos": [
+        "enterotomografia como me preparo"
+      ],
+      "esperado": "Jejum de 8h + preparo adicional (macrogol) a confirmar",
+      "deve": [
+        "8 h|8 horas|enterotomografia|entero"
+      ],
+      "naoDeve": [
+        "nao localizei"
+      ]
+    }
+  ]
+}
