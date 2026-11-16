@@ -16,9 +16,12 @@
     "test:e2e:ui": "playwright test --ui",
     "eval:fallback": "vitest run --config evaluation/vitest.config.ts",
     "eval:llm": "EVAL_MODE=llm vitest run --config evaluation/vitest.config.ts",
+    "eval:dev": "node scripts/run-dev-set.mjs",
     "audit:catalog": "node scripts/audit-catalog.mjs",
     "audit:catalog:check": "node scripts/audit-catalog.mjs --check --strict",
-    "audit:evidence": "node scripts/verify-documentary-evidence.mjs"
+    "audit:evidence": "node scripts/verify-documentary-evidence.mjs",
+    "data:check": "node scripts/verify-preparation-standard.mjs",
+    "data:report": "node scripts/verify-preparation-standard.mjs --write"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

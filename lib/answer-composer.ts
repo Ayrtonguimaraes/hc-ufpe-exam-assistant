@@ -6,9 +6,18 @@ import { REGION_TERMS } from './request-policy'
 import { restrictionsForExams } from './service-restrictions'
 import type { Exame, PreparosFile, Profile, Source } from './types'
 
-const medication = /medica[cç]|comprimido|gotas|\bmg\b|tomar|utilizar luftal|simeticona|polaramine|norfloxacino|suspens|suspens|suspend|suspensa/i
+const medication = /medica[cç]|comprimido|gotas|\bmg\b|tomar|utilizar luftal|simeticona|polaramine|norfloxacino|suspens|suspend|analg[eé]sico|antiespasm|buscop/i
+// "Não utilizar medicações sobre a pele" forbids a use; it is not a dose or schedule, so the patient must see it.
+const prohibition = /^n[aã]o (utilizar|usar|aplicar|passar)\b/i
+const dose = /comprimido|gotas|\bmg\b|tomar/i
+const isMedicationInstruction = (s: string) => medication.test(s) && !(prohibition.test(s.trim()) && !dose.test(s))
+const sentencesOf = (text: string) => text.split(/(?<=[.;])\s+/)
 export function safeSentences(text: string) {
-  return text.split(/(?<=[.;])\s+/).filter(s => !medication.test(s))
+  return sentencesOf(text).filter(s => !isMedicationInstruction(s))
+}
+/** True when the inherited text had a medication instruction that the answer withheld. */
+export function withheldMedication(text: string) {
+  return sentencesOf(text).some(isMedicationInstruction)
 }
 
 /** Professional answers for CT, MRI and US carry the documented inpatient flow, which the patient answer does not need. */
@@ -84,7 +93,7 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   const blocks = [profile === 'patient' ? `Olá! Para **${(matched.length === 1 ? matched[0].nome_usual : p.titulo).toLowerCase()}**, estas são as informações cadastradas:` : `**${p.titulo}**`, sentences.map(s => /antecedencia|chegar ao servico/i.test(normalize(s)) ? `**Quando chegar:** ${s.replace(/^Comparecer/, 'Compareça')}` : /jejum/i.test(s) ? `**Jejum:** ${s}` : `- ${s}`).join('\n\n')]
   if (mriContrast && !specificQuestion) blocks.splice(1, 0, '**Jejum:** o cadastro herdado tem condições de jejum que dependem do tipo de ressonância e ainda não foram reconciliadas. Não consigo confirmar o tempo de jejum ' + (profile === 'patient' ? 'do seu exame' : 'deste exame') + '; confirme com o setor.')
   if (!documented && !specificQuestion && p.observacoes) blocks.push(safeSentences(p.observacoes).filter(s => profile !== 'patient' || !/aghu|apac|ubs|secretaria de saude/.test(normalize(s))).join(' '))
-  if (medication.test(p.orientacoes + ' ' + (p.observacoes ?? '')) && !specificQuestion) blocks.push(profile === 'patient' ? '**Medicamentos:** orientações sobre medicamentos precisam ser confirmadas com o médico ou com a UDI; não altere seu tratamento com base no chat.' : '**Medicamentos:** o cadastro cita medicamentos neste preparo. Dose e esquema precisam ser confirmados com o protocolo da UDI antes da prescrição; no paciente internado, eles precisam constar na prescrição enviada junto.')
+  if (withheldMedication(p.orientacoes + ' ' + (p.observacoes ?? '')) && !specificQuestion) blocks.push(profile === 'patient' ? '**Medicamentos:** orientações sobre medicamentos precisam ser confirmadas com o médico ou com a UDI; não altere seu tratamento com base no chat.' : '**Medicamentos:** o cadastro cita medicamentos neste preparo. Dose e esquema precisam ser confirmados com o protocolo da UDI antes da prescrição; no paciente internado, eles precisam constar na prescrição enviada junto.')
   if (documented) blocks.push(profile === 'patient' ? '**Importante:** estas orientações ainda precisam ser confirmadas pela equipe do hospital e não representam o preparo completo. Confirme com o setor antes do exame, inclusive sobre medicamentos, se houver.' : '**Situação da informação:** trechos localizados no documento recebido, com validação da UDI pendente. Estas informações são parciais; confirme o preparo completo com o setor, inclusive orientações adicionais e sobre medicamentos, quando houver.')
   else if (p.status === 'parcial') blocks.push('O cadastro é parcial. Confirme com o setor as orientações não registradas.')
   else blocks.push('**Origem da informação:** cadastro herdado do projeto; a fonte documental deste conteúdo ainda não foi reconciliada.')

@@ -1,0 +1,1434 @@
+{
+  "version": 1,
+  "scope": "Orientações de preparo em formato padronizado (piloto: medicamentos e folhas escaneadas). Cada item é atômico, tem fonte e estado de validação. Inspirado em HL7 FHIR (PlanDefinition.action, Provenance), sem implementar FHIR.",
+  "enums": {
+    "tipo": [
+      "jejum",
+      "dieta",
+      "medicamento",
+      "suspensao_medicamento",
+      "bexiga",
+      "restricao",
+      "exame_previo",
+      "levar",
+      "chegada",
+      "agendamento",
+      "outro"
+    ],
+    "estado": [
+      "documental-pendente-udi",
+      "conflito-pendente",
+      "sem-fonte-documental",
+      "validado-udi"
+    ],
+    "publico": [
+      "paciente",
+      "medico_solicitante",
+      "enfermagem_andar",
+      "setor"
+    ],
+    "classeMedicamento": {
+      "A": "indispensável para o exame",
+      "B": "ajuste de remédio de uso contínuo",
+      "C": "sintomático ou de conforto",
+      "D": "proibição de uso"
+    }
+  },
+  "itens": [
+    {
+      "id": "rx-uretro-norfloxacino",
+      "aplicaA": {
+        "exames": [
+          "RXURE",
+          "RXURP"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Tomar o antibiótico norfloxacino na véspera, no dia e no dia seguinte ao exame, conforme prescrição.",
+      "medicamento": {
+        "principioAtivo": "norfloxacino",
+        "posologiaNaFonte": "400 mg de 12 em 12 horas por 3 dias",
+        "classe": "A",
+        "exigeReceita": true
+      },
+      "momento": {
+        "inicio": "-P1D",
+        "fim": "+P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p4"
+        }
+      ],
+      "ressalva": "A folha não distingue idade; o uso no exame pediátrico (RXURP) não está demonstrado.",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p5",
+        "trecho": "TOMAR O MEDICAMENTO: - NORFLOXACINO 400 mg DE 12 EM 12h (POR 3 DIAS) • NA VÉSPERA DO EXAME • NO DIA DO EXAME • UM DIA APÓS O EXAME"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-urografia-dieta-vespera",
+      "aplicaA": {
+        "exames": [
+          "RXUR1",
+          "RXUR4"
+        ]
+      },
+      "tipo": "dieta",
+      "texto": "Na véspera, evitar alimentos gordurosos, como leite e café, e jantar leve até as 18h.",
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p2"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p4",
+        "trecho": "EVITAR ALIMENTOS GORDUROSOS, COMO LEITE E CAFÉ; - JANTAR LEVE ATÉ AS 18h;"
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-urografia-jejum",
+      "aplicaA": {
+        "exames": [
+          "RXUR1",
+          "RXUR4"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum absoluto de 12 horas, a partir do jantar da véspera.",
+      "momento": {
+        "duracao": "PT12H"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p2"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p4",
+        "trecho": "JEJUM ABSOLUTO APÓS O JANTAR POR 12h. ... NO DIA DO EXAME: - JEJUM ABSOLUTO DE 12h."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-urografia-bisacodil",
+      "aplicaA": {
+        "exames": [
+          "RXUR1",
+          "RXUR4"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Tomar o laxante bisacodil após o jantar da véspera.",
+      "medicamento": {
+        "principioAtivo": "bisacodil",
+        "posologiaNaFonte": "3 comprimidos após o jantar da véspera",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Dulcolax"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p2"
+        }
+      ],
+      "ressalva": "Os dois exames do grupo (com cistografia e venosa minutada) usam a mesma folha; a equivalência não foi confirmada.",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p4",
+        "trecho": "MEDICAÇÕES PARA TOMAR: - INGERIR APÓS O JANTAR 03 COMPRIMIDOS DE DUCOLAX;"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-janela-menstrual",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "restricao",
+      "texto": "O exame deve ser feito entre o 6º e o 12º dia da menstruação.",
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "O exame deverá ser realizado entre o 6º e o 12º dia da MENSTRUAÇÃO."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-contraindicacoes",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "restricao",
+      "texto": "Não pode ser feito em mulheres em uso de DIU, com corrimento vaginal ou sangramento.",
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "O exame NÃO pode ser realizado em mulheres em uso de DIU, COM CORRIMENTO VAGINAL ou SANGRAMENTO."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-abstinencia",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "outro",
+      "texto": "Abstinência sexual nos 3 dias antes do exame.",
+      "momento": {
+        "inicio": "-P3D"
+      },
+      "indispensavel": true,
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "Abstinência sexual 03 dias antes do exame."
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-bisacodil",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Tomar o laxante bisacodil após o jantar da véspera.",
+      "medicamento": {
+        "principioAtivo": "bisacodil",
+        "posologiaNaFonte": "3 comprimidos de 5 mg após o jantar da véspera",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Dulcolax"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "Na véspera do exame tomar 3 comprimidos de BISACORDIL 5mg (DUCOLAX), após o jantar."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-jejum",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 3 horas antes do exame.",
+      "momento": {
+        "duracao": "PT3H"
+      },
+      "indispensavel": true,
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "Jejum de 03 horas antes do exame."
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-antiespasmodico",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Tomar antiespasmódico 30 minutos antes do exame, se não houver alergia; em caso de alergia, o analgésico de costume.",
+      "medicamento": {
+        "principioAtivo": "escopolamina",
+        "posologiaNaFonte": "40 gotas ou 2 comprimidos 30 minutos antes",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Buscopan"
+      },
+      "momento": {
+        "inicio": "-PT30M"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "30 minutos antes do horário agendado: 40 gotas ou 02 comprimidos via oral de antiespasmódico (buscopam simples ou composto), caso não seja alérgica. Em caso de alergia, usar analgésico que costuma tomar."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-absorvente",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "levar",
+      "texto": "Trazer absorvente higiênico.",
+      "indispensavel": false,
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "Trazer absorvente higiênico."
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-hsg-exames-previos",
+      "aplicaA": {
+        "exames": [
+          "RXHIS"
+        ]
+      },
+      "tipo": "exame_previo",
+      "texto": "Trazer Beta-HCG negativo (até 3 dias antes), preventivo com até 6 meses, cultura de secreção vaginal negativa com até 6 meses e exames anteriores de ultrassom pélvico, ressonância ou histerossalpingografia.",
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p6 (anotação manuscrita \"último\")"
+        }
+      ],
+      "conflito": "rx-histerossalpingografia-versao-vigente",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p2",
+        "trecho": "QUAIS EXAMES TRAZER: Beta-HCG NEGATIVO (realizado até 3 dias antes do exame. Exame preventivo (Colposcopia) com data de até 06 meses realizado antes. Cultura de secreção vaginal NEGATIVO com data de até 06 meses realizado antes. Exames anteriores de Ultrassonografia pélvica, Ressonância Magnética ou histerossalpingografia."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-esofago-jejum",
+      "aplicaA": {
+        "grupo": "rx_esofago"
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 6 horas antes do exame; não há outro preparo.",
+      "momento": {
+        "duracao": "PT6H"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p5"
+        }
+      ],
+      "ressalva": "A folha é de \"exame de esôfago\"; a aplicação aos 6 exames do grupo (inclui deglutição infantil e tórax contrastado) não foi confirmada.",
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p3",
+        "trecho": "REALIZAR JEJUM DE 6H ANTES DA REALIZAÇÃO DO EXAME. PARA REALIZAÇÃO DESTE EXAME NÃO HÁ NECESSIDADE DE NENHUM PREPARO"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-transito-jejum",
+      "aplicaA": {
+        "exames": [
+          "RXTDE",
+          "RXTIN"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 6 horas no dia do exame.",
+      "momento": {
+        "duracao": "PT6H"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "scanned-2026-11-09",
+          "local": "p5"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p6",
+        "trecho": "NO DIA DO EXAME: O PACIENTE DEVERÁ ESTAR EM JEJUM POR 6h"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rx-enema-v1-dieta-antevespera",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "dieta",
+      "texto": "Na antevéspera, evitar alimentos gordurosos, leite, café, legumes e verduras; dieta líquida ou pastosa.",
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "ANTE VÉSPERA DO EXAME: - EVITAR ALIMENTOS GORDUROSOS, LEITE, CAFÉ, LEGUMES E VERDURAS; ... - DIETA LÍQUIDA OU PASTOSA."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-v1-laxante-antevespera",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "medicamento",
+      "texto": "Na antevéspera, às 20h, tomar laxante (óleo de rícino ou bisacodil).",
+      "medicamento": {
+        "principioAtivo": "óleo de rícino ou bisacodil",
+        "posologiaNaFonte": "1 vidro de Laxol ou 4 comprimidos de Ducolax às 20h da antevéspera",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Laxol / Dulcolax"
+      },
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "ÀS 20h TOMAR 01 VIDRO DE LAXOL OU 04 COMPRIMIDOS DE DUCOLAX."
+      }
+    },
+    {
+      "id": "rx-enema-v1-cronograma-vespera",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "dieta",
+      "texto": "Na véspera, seguir o cronograma de água, chá e mingau das 7h às 21h.",
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "Ás 07:00 – Chá com bolacha ... Ás 20:00 - 01 copo (250ml) de água mais mingau de maisena ou caldo de carne magra sem resíduo (bem coado)"
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-v1-laxantes-vespera",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "medicamento",
+      "texto": "Na véspera, tomar bisacodil às 10h e às 21h e leite de magnésia às 17h.",
+      "medicamento": {
+        "principioAtivo": "bisacodil; hidróxido de magnésio",
+        "posologiaNaFonte": "3 comprimidos às 10h e às 21h; 1 vidro pequeno de leite de magnésia às 17h",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Dulcolax / Leite de Magnésia"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "Ás 10:00 – 03 comprimidos de DUCOLAX ... Ás 17:00 – 01 vidro pequeno de leite de magnésia ... Ás 21:00 – 03 comprimidos de DUCOLAX"
+      }
+    },
+    {
+      "id": "rx-enema-v1-simeticona",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "medicamento",
+      "texto": "Na véspera, tomar simeticona de 8 em 8 horas.",
+      "medicamento": {
+        "principioAtivo": "simeticona",
+        "posologiaNaFonte": "40 gotas de 8 em 8 horas na véspera",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Luftal"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "TOMAR 40 GOTAS DE LUFTAL DE 8/8 Hrs"
+      }
+    },
+    {
+      "id": "rx-enema-v1-jejum",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "jejum",
+      "texto": "No dia do exame, jejum absoluto de 12 horas.",
+      "momento": {
+        "duracao": "PT12H"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "cronograma (S06 p7)",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p3"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p7",
+        "trecho": "NO DIA DO EXAME : JEJUM ABSOLUTO DE 12 HORAS"
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-v2-dieta",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "dieta",
+      "texto": "Na antevéspera, evitar alimentos gordurosos; dieta líquida ou pastosa.",
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "sem simeticona (Exames escaneados p4)",
+      "fonte": {
+        "id": "exames-escaneados",
+        "local": "p4",
+        "trecho": "ANTE VÉSPERA DO EXAME: -EVITAR ALIMENTOS GORDUROSOS. ... -DIETA LÍQUIDA OU PASTOSA."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-v2-laxantes",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "medicamento",
+      "texto": "Na antevéspera, às 20h, laxante (óleo de rícino ou bisacodil); na véspera, bisacodil às 10h e às 21h e leite de magnésia às 17h, com cronograma de água e mingau.",
+      "medicamento": {
+        "principioAtivo": "óleo de rícino ou bisacodil; hidróxido de magnésio",
+        "posologiaNaFonte": "1 vidro de Laxol ou 4 comprimidos de Ducolax às 20h da antevéspera; na véspera, 3 comprimidos de Ducolax às 10h e às 21h e 1 vidro pequeno de leite de magnésia às 17h",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Laxol / Dulcolax / Leite de Magnésia"
+      },
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "sem simeticona (Exames escaneados p4)",
+      "fonte": {
+        "id": "exames-escaneados",
+        "local": "p4",
+        "trecho": "-ÀS 20 HORAS TOMAR UM VIDRO DE LAXOL OU 04 COMPROMIDOS DE DUCOLAX. ... Às 10:00 - 03 comprimidos de DUCOLAX. ... Às 17:00 - 01 vidro pequeno de leite de magnésia. ... Às 21:00 - 03 comprimidos de DUCOLAX."
+      }
+    },
+    {
+      "id": "rx-enema-v2-jejum",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_adulto"
+      },
+      "tipo": "jejum",
+      "texto": "No dia do exame, jejum absoluto de 12 horas.",
+      "momento": {
+        "duracao": "PT12H"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-adulto-versao",
+      "estado": "conflito-pendente",
+      "versao": "sem simeticona (Exames escaneados p4)",
+      "fonte": {
+        "id": "exames-escaneados",
+        "local": "p4",
+        "trecho": "NO DIA DO EXAME: - JEJUM ABSOLUTO DE 12 HORAS."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-v2-crianca-sem-preparo",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_crianca"
+      },
+      "tipo": "restricao",
+      "texto": "Observação da folha: criança não precisa realizar preparo.",
+      "conflito": "rx-enema-opaco-pediatrico-preparo",
+      "estado": "conflito-pendente",
+      "condicao": "crianca",
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fonte": {
+        "id": "exames-escaneados",
+        "local": "p4",
+        "trecho": "OBS: SE FOR CRIANÇA, NÃO PRECISA REALIZAR PREPARO."
+      }
+    },
+    {
+      "id": "rx-enema-crianca-dieta",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_crianca"
+      },
+      "tipo": "dieta",
+      "texto": "Na antevéspera, evitar alimentos gordurosos, leite, café, legumes e verduras.",
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-pediatrico-preparo",
+      "estado": "conflito-pendente",
+      "condicao": "crianca_a_partir_de_7_anos",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p1"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p1",
+        "trecho": "ANTE VÉSPERA DO EXAME: - EVITAR ALIMENTOS GORDUROSOS, LEITE, CAFÉ, LEGUMES E VERDURAS;"
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "rx-enema-crianca-bisacodil",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_crianca"
+      },
+      "tipo": "medicamento",
+      "texto": "Bisacodil às 20h da antevéspera e às 21h da véspera.",
+      "medicamento": {
+        "principioAtivo": "bisacodil",
+        "posologiaNaFonte": "1 comprimido às 20h da antevéspera e 1 às 21h da véspera",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Dulcolax"
+      },
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente"
+      ],
+      "conflito": "rx-enema-opaco-pediatrico-preparo",
+      "estado": "conflito-pendente",
+      "condicao": "crianca_a_partir_de_7_anos",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p1"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p1",
+        "trecho": "ÀS 20h TOMAR 01 COMPRIMIDO DE DUCOLAX. ... NA VÉSPERA DO EXAME: - ÀS 21h - 01 COMPRIMIDO DE DUCOLAX"
+      }
+    },
+    {
+      "id": "rx-enema-crianca-jejum",
+      "aplicaA": {
+        "grupo": "rx_enema_opaco_crianca"
+      },
+      "tipo": "jejum",
+      "texto": "No dia do exame, jejum de 6 horas.",
+      "momento": {
+        "duracao": "PT6H"
+      },
+      "indispensavel": true,
+      "conflito": "rx-enema-opaco-pediatrico-preparo",
+      "estado": "conflito-pendente",
+      "condicao": "crianca_a_partir_de_7_anos",
+      "fontesAdicionais": [
+        {
+          "id": "exames-escaneados",
+          "local": "p1"
+        }
+      ],
+      "fonte": {
+        "id": "rx-contrastados",
+        "local": "p1",
+        "trecho": "NO DIA DO EXAME: - JEJUM DE 06h."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "us-abdominal-folha-jejum",
+      "aplicaA": {
+        "exames": [
+          "USABT",
+          "USABD"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 8 horas antes do exame (folha de ultrassonografia abdominal).",
+      "momento": {
+        "duracao": "PT8H"
+      },
+      "indispensavel": true,
+      "versao": "folha escaneada",
+      "conflito": "us-abdomen-preparo-e-contato",
+      "estado": "conflito-pendente",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p1",
+        "trecho": "MANTER JEJUM DURANTE AS 8 HORAS QUE ANTECEDEM O EXAME."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "us-abdominal-folha-simeticona",
+      "aplicaA": {
+        "exames": [
+          "USABT",
+          "USABD"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Simeticona de 6 em 6 horas na véspera e na manhã do exame.",
+      "medicamento": {
+        "principioAtivo": "simeticona",
+        "posologiaNaFonte": "40 gotas de 6 em 6 horas na véspera e na manhã do exame",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Luftal"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "versao": "folha escaneada",
+      "conflito": "us-abdomen-preparo-e-contato",
+      "estado": "conflito-pendente",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p1",
+        "trecho": "UTILIZAR LUFTAL (SIMETICONA) 40 GOTAS DE 6 EM 6 HORAS NO DIA QUE ANTECEDE AO EXAME E NA MANHÃ DO EXAME."
+      }
+    },
+    {
+      "id": "us-abdominal-folha-agua",
+      "aplicaA": {
+        "exames": [
+          "USABT",
+          "USABD"
+        ]
+      },
+      "tipo": "bexiga",
+      "texto": "Ao chegar, tomar água quando a recepcionista avisar e, se possível, manter a bexiga cheia.",
+      "indispensavel": false,
+      "versao": "folha escaneada",
+      "conflito": "us-abdomen-preparo-e-contato",
+      "estado": "conflito-pendente",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p1",
+        "trecho": "AO CHEGAR NO HOSPITAL E SE DIRIGIR AO SETOR DE REALIZAÇÃO DO EXAME TOMAR ÁGUA QUANDO A RECEPCIONISTA AVISAR. SE POSSÍVEL MANTER A BEXIGA CHEIA ATÉ A REALIZAÇÃO DO EXAME."
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "us-abdome-doc-jejum",
+      "aplicaA": {
+        "exames": [
+          "USABT",
+          "USABD"
+        ]
+      },
+      "tipo": "jejum",
+      "texto": "Jejum de 4 a 6 horas (abdome total, abdome superior, biópsia hepática).",
+      "conflito": "us-abdomen-preparo-e-contato",
+      "estado": "conflito-pendente",
+      "versao": "documento geral",
+      "momento": {
+        "duracaoMin": "PT4H",
+        "duracaoMax": "PT6H"
+      },
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P30–31",
+        "trecho": "EXAMES: Abdômen total, Abdômen superior, Biopsia hepática / Jejum de 4 a 6h"
+      },
+      "publico": [
+        "paciente"
+      ]
+    },
+    {
+      "id": "us-abdome-total-doc-simeticona",
+      "aplicaA": {
+        "exames": [
+          "USABT"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Abdome total: simeticona de 6 em 6 horas na véspera e na manhã do exame.",
+      "medicamento": {
+        "principioAtivo": "simeticona",
+        "posologiaNaFonte": "40 gotas de 6 em 6 horas",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Luftal"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P32–33",
+        "trecho": "Utilizar luftal (simeticona) 40 gotas de 6 em 6 horas no dia que antecede ao exame e na manhã do exame."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "us-doppler-renal-dieta",
+      "aplicaA": {
+        "exames": [
+          "USAR"
+        ]
+      },
+      "tipo": "dieta",
+      "texto": "Na véspera, não comer feijão, leite e derivados nem tomar refrigerante.",
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P26",
+        "trecho": "No dia anterior: não comer feijão, leite)\\ derivados e refrigerantes;"
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "us-doppler-renal-simeticona",
+      "aplicaA": {
+        "exames": [
+          "USAR"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Simeticona de 6 em 6 horas na véspera e na manhã do exame.",
+      "medicamento": {
+        "principioAtivo": "simeticona",
+        "posologiaNaFonte": "40 gotas de 6 em 6 horas",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Luftal"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P27",
+        "trecho": "Utilizar luftal (simeticona) 40 gotas de 6 em 6 horas no dia que antecede o exame e na manhã do exame"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "us-doppler-renal-laxante",
+      "aplicaA": {
+        "exames": [
+          "USAR"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Se tiver prisão de ventre, usar laxante dois dias antes do exame.",
+      "condicao": "constipacao",
+      "medicamento": {
+        "principioAtivo": "laxante (senna, bisacodil, tamarindo ou lactulose)",
+        "posologiaNaFonte": "dois dias antes",
+        "classe": "C",
+        "exigeReceita": false,
+        "nomeComercial": "Naturetti / Dulcolax"
+      },
+      "momento": {
+        "inicio": "-P2D"
+      },
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P28",
+        "trecho": "Se for constipado, utilizar laxante: naturetti, ducolax, tamarino ou lactulose dois dias antes do exame."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "mamo-sem-medicacao-topica",
+      "aplicaA": {
+        "grupo": "mamografia"
+      },
+      "tipo": "restricao",
+      "texto": "Não usar medicações sobre a pele na região da mama no dia do exame.",
+      "medicamento": {
+        "principioAtivo": "medicação tópica",
+        "posologiaNaFonte": "não usar no dia",
+        "classe": "D",
+        "exigeReceita": false
+      },
+      "indispensavel": true,
+      "fonte": {
+        "id": "orientacoes-exames",
+        "local": "P43",
+        "trecho": "Não utilizar medicações sobre a pele na região da mama no dia do exame;"
+      },
+      "publico": [
+        "paciente"
+      ],
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-entero-macrogol",
+      "aplicaA": {
+        "exames": [
+          "ENTTC"
+        ]
+      },
+      "tipo": "medicamento",
+      "texto": "Enterotomografia: trazer uma caixa de macrogol (Muvinlax) para o preparo, além do jejum de 8 horas.",
+      "medicamento": {
+        "principioAtivo": "macrogol",
+        "posologiaNaFonte": "trazer 1 caixa",
+        "classe": "A",
+        "exigeReceita": false,
+        "nomeComercial": "Muvinlax"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "medico_solicitante",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "folha-tc",
+          "local": "p1"
+        }
+      ],
+      "fonte": {
+        "id": "orientacoes-tc-rm",
+        "local": "P97",
+        "trecho": "Enterotomografia: Jejum de 08h + preparo (trazer 01 caixa de muvinlax OU macrogol)"
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-contraste-metformina",
+      "aplicaA": {
+        "grupo": "tc_contraste"
+      },
+      "tipo": "suspensao_medicamento",
+      "texto": "Paciente diabético: suspender a metformina 48 horas antes e após a tomografia com contraste; não suspender outras medicações de uso contínuo sem orientação médica.",
+      "condicao": "diabetico_em_uso_de_metformina",
+      "medicamento": {
+        "principioAtivo": "metformina",
+        "posologiaNaFonte": "suspender 48 horas antes e 48 horas depois",
+        "classe": "B",
+        "exigeReceita": true
+      },
+      "momento": {
+        "inicio": "-P2D",
+        "fim": "+P2D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "enfermagem_andar"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "folha-tc",
+          "local": "p1"
+        }
+      ],
+      "fonte": {
+        "id": "orientacoes-tc-rm",
+        "local": "P101",
+        "trecho": "Pacientes diabéticos: suspender metiformina 48h antes e após a realização da tomografia; não suspender outras medicações de uso contínuo, exceto em caso de orientação médica."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-contraste-antialergico",
+      "aplicaA": {
+        "grupo": "tc_contraste"
+      },
+      "tipo": "medicamento",
+      "texto": "Antialérgico obrigatório para quem já teve reação alérgica grave; recomendado para múltiplas alergias ou reação leve/moderada ao mesmo contraste; não indicado para alergia a frutos do mar, iodo tópico, asma isolada ou alergias sazonais.",
+      "condicao": "historico_de_alergia",
+      "medicamento": {
+        "principioAtivo": "antialérgico (não especificado na fonte)",
+        "posologiaNaFonte": "a fonte não informa medicamento nem esquema",
+        "classe": "A",
+        "exigeReceita": true
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante"
+      ],
+      "fontesAdicionais": [
+        {
+          "id": "folha-tc",
+          "local": "p1"
+        }
+      ],
+      "ressalva": "O P84 contraindica o exame contrastado para quem tem histórico de reação alérgica ao contraste iodado; a relação com o P107 precisa ser decidida pela UDI.",
+      "fonte": {
+        "id": "orientacoes-tc-rm",
+        "local": "P105–115",
+        "trecho": "Uso do antialérgico obrigatório para pacientes com histórico de reações alérgicas graves. Não indicado ... Com alergia a frutos do mar ou iodo tópico; Asma brônquica isolada; Alergias sazonais. Uso de antialérgico é recomendado para pacientes: Com múltiplas alergias; Com reação alérgica moderada ou leve ao mesmo contraste."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-hemodialise",
+      "aplicaA": {
+        "grupo": "tc_contraste"
+      },
+      "tipo": "outro",
+      "texto": "Pacientes em hemodiálise ou diálise peritoneal devem programar as sessões para depois do exame.",
+      "condicao": "hemodialise",
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "enfermagem_andar",
+        "paciente"
+      ],
+      "fonte": {
+        "id": "orientacoes-tc-rm",
+        "local": "P103",
+        "trecho": "Pacientes em hemodiálise ou diálise peritonial devem programar sessões após a realização do exame."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "rm-contraste-dexclorfeniramina",
+      "aplicaA": {
+        "grupo": "rm_contraste"
+      },
+      "tipo": "medicamento",
+      "texto": "Antialérgico (dexclorfeniramina) na véspera às 22h e 3 horas antes do exame.",
+      "medicamento": {
+        "principioAtivo": "dexclorfeniramina",
+        "posologiaNaFonte": "6 mg às 22h da véspera e 3 horas antes",
+        "classe": "A",
+        "exigeReceita": true,
+        "nomeComercial": "Polaramine"
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "paciente"
+      ],
+      "ressalva": "O documento de RM diz \"Verificar no papel\" (P35–36); a folha não foi localizada.",
+      "estado": "sem-fonte-documental",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "catalogo",
+        "local": "rm_contraste",
+        "trecho": "Na véspera do exame: tomar 1 comprimido de Polaramine 6 mg às 22h. No dia do exame: tomar 1 comprimido de Polaramine 6 mg, 3h antes do horário do exame."
+      }
+    },
+    {
+      "id": "rm-contraste-antidiabetico",
+      "aplicaA": {
+        "grupo": "rm_contraste"
+      },
+      "tipo": "suspensao_medicamento",
+      "texto": "Não tomar a medicação para diabetes no dia do exame e nas 48 horas seguintes.",
+      "condicao": "diabetico",
+      "medicamento": {
+        "principioAtivo": "antidiabéticos (não especificados)",
+        "posologiaNaFonte": "não tomar no dia do exame e nas 48 horas seguintes",
+        "classe": "B",
+        "exigeReceita": true
+      },
+      "momento": {
+        "inicio": "P0D",
+        "fim": "+P2D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante"
+      ],
+      "ressalva": "Fonte não localizada; difere da regra de TC (metformina 48h antes e depois).",
+      "estado": "sem-fonte-documental",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "catalogo",
+        "local": "rm_contraste",
+        "trecho": "NÃO tomar a medicação para diabetes no dia do exame e nas 48h seguintes."
+      }
+    },
+    {
+      "id": "rm-contraste-anti-hipertensivo",
+      "aplicaA": {
+        "grupo": "rm_contraste"
+      },
+      "tipo": "outro",
+      "texto": "Paciente hipertenso não deve suspender a medicação.",
+      "condicao": "hipertenso",
+      "indispensavel": false,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "estado": "sem-fonte-documental",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "catalogo",
+        "local": "rm_contraste",
+        "trecho": "Paciente hipertenso NÃO suspender uso da medicação."
+      }
+    },
+    {
+      "id": "densitometria-calcio",
+      "aplicaA": {
+        "grupo": "densitometria_ossea"
+      },
+      "tipo": "suspensao_medicamento",
+      "texto": "Suspender medicações com cálcio 24 horas antes do exame.",
+      "medicamento": {
+        "principioAtivo": "cálcio (suplementos)",
+        "posologiaNaFonte": "suspender 24 horas antes",
+        "classe": "B",
+        "exigeReceita": false
+      },
+      "momento": {
+        "inicio": "-P1D"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "medico_solicitante"
+      ],
+      "ressalva": "Orientações exames.docx diz \"Informações no papel\" (P51); a folha não foi localizada.",
+      "estado": "sem-fonte-documental",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "catalogo",
+        "local": "densitometria_ossea",
+        "trecho": "Qualquer medicação contendo cálcio deve ser suspensa por 24 horas antes da data agendada."
+      }
+    },
+    {
+      "id": "tc-biopsia-pulmonar-agendamento",
+      "aplicaA": {},
+      "tipo": "agendamento",
+      "texto": "Pedido no AGHUx pelo médico assistente. Internado: o médico solicitante contata o médico responsável indicado na folha, que avisa a UDI. Ambulatorial: consulta na Hemodinâmica e marcação no guichê da Tomografia. Exame às segundas-feiras, 16h.",
+      "indispensavel": true,
+      "publico": [
+        "medico_solicitante",
+        "enfermagem_andar",
+        "paciente"
+      ],
+      "semExameNoCatalogo": "Biópsia pulmonar guiada por tomografia (sem sigla no catálogo AGHU recebido)",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p3",
+        "trecho": "O exame deverá ser solicitado no AGHUx pelo médico assistente. Em caso de solicitações para pacientes internos, o médico solicitante deverá entrar em contato com o Dr. Laécio Leitão, que avisará a UDI sobre o exame. ... O exame será realizado sempre nas segundas-feiras às 16h na Unidade de Tomografia."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-biopsia-pulmonar-jejum",
+      "aplicaA": {},
+      "tipo": "jejum",
+      "texto": "Pode se alimentar normalmente até as 7h do dia do exame (jejum de 8 horas).",
+      "momento": {
+        "duracao": "PT8H"
+      },
+      "indispensavel": true,
+      "publico": [
+        "paciente",
+        "enfermagem_andar"
+      ],
+      "semExameNoCatalogo": "Biópsia pulmonar guiada por tomografia (sem sigla no catálogo AGHU recebido)",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p3",
+        "trecho": "No dia do exame o paciente poderá se alimentar normalmente até às 7h (MANTER JEJUM DE 8h ANTES DO EXAME)."
+      },
+      "estado": "documental-pendente-udi"
+    },
+    {
+      "id": "tc-biopsia-pulmonar-chegada",
+      "aplicaA": {},
+      "tipo": "chegada",
+      "texto": "Chegar à Unidade de Hemodinâmica com acompanhante \"às 12 horas\" para organizar o internamento; trazer exames anteriores.",
+      "indispensavel": true,
+      "publico": [
+        "paciente"
+      ],
+      "ressalva": "A folha diz \"às 12 horas\"; pode ser horário (meio-dia) e não antecedência. Confirmar.",
+      "semExameNoCatalogo": "Biópsia pulmonar guiada por tomografia (sem sigla no catálogo AGHU recebido)",
+      "fontesAdicionais": [],
+      "fonte": {
+        "id": "scanned-2026-11-09",
+        "local": "p3",
+        "trecho": "Trazer exames anteriores. - Chegar na Unidade de Hemodinâmica com acompanhante às 12 horas para organizar o internamento."
+      },
+      "estado": "documental-pendente-udi"
+    }
+  ],
+  "notaClassificacao": "Os campos classe, indispensavel e exigeReceita são classificação proposta pela equipe do projeto, não estão nas fontes e não foram validados pela UDI. exigeReceita indica se o medicamento exige receita para ser comprado; no paciente internado, todo medicamento de preparo precisa estar na prescrição."
+}

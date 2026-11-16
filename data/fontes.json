@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "scope": "Registro único dos documentos usados como fonte. Todo sourceId citado em data/*.json deve existir aqui. Ter fonte não significa homologação clínica.",
+  "sources": {
+    "orientacoes-tc-rm": {
+      "title": "Orientações exames - Tomografia - Ressonancia.docx",
+      "kind": "documento-digital",
+      "sha256": "039636614f9e8d0f1535c52bc2269702af46c7860e31d781f6e437c2111f1645",
+      "locatorFormat": "P = parágrafo da extração (auditoria local)"
+    },
+    "orientacoes-exames": {
+      "title": "Orientações exames.docx",
+      "kind": "documento-digital",
+      "sha256": "ad6965f902d0cefd0c5942df644fdd2d1a498ba0cb7be00074b41ca6b67c3a02",
+      "locatorFormat": "P = parágrafo da extração"
+    },
+    "folha-tc": {
+      "title": "ORIENTACÕES PARA TOMOGRAFIA HC -UFPE.pdf",
+      "kind": "folha-pdf",
+      "sha256": "dc358dcdbf8ce9712a389b9a4ad4e111bfe952cc8f9da94af6bf18f9e9205d07",
+      "note": "Repete parte do Doc TC/RM; pode ser cópia, não validação independente."
+    },
+    "fluxo-tc": {
+      "title": "FLUXO TOMOGRAFIA (1).pdf",
+      "kind": "fluxograma-pdf",
+      "sha256": "3cf2c659e01ef3c7b13f40b5178e5a5927bd0c76ebd1aacd1cea86f24c52ab78"
+    },
+    "fluxo-tc-rm": {
+      "title": "FLUXO TOMOGRAFIA.pdf (fluxograma de TC e RM)",
+      "kind": "fluxograma-pdf",
+      "sha256": "d2b64dfb8b24e1bcc3b5b14ed2b2af7ab733c928ceac59d9bedbd97e69b2bd5a"
+    },
+    "rx-contrastados": {
+      "title": "PREPAROS_EXAMES DE RAIO X CONTRASTADOS.pdf",
+      "kind": "folha-escaneada",
+      "sha256": "72806de7e970ef8a97225e294a5e7a5939a50075ff52537b4ab6db16507a8e21",
+      "locatorFormat": "p = página do PDF (7 páginas)"
+    },
+    "exames-escaneados": {
+      "title": "Exames escaneados.pdf",
+      "kind": "folha-escaneada",
+      "sha256": "146d1fb27928c0298caf345ce15201e7c48e9a720ad5ff19863f736f9b140d10",
+      "locatorFormat": "p = página do PDF (5 páginas)",
+      "receivedAt": "2026-11-09"
+    },
+    "scanned-2026-11-09": {
+      "title": "Exames escaneados 2.pdf (Scanned 9 Nov 2026 at 180448.pdf)",
+      "kind": "folha-escaneada",
+      "sha256": "7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0",
+      "locatorFormat": "p = página do PDF (6 páginas)",
+      "receivedAt": "2026-11-09"
+    },
+    "checklist-internos": {
+      "title": "Check list para pacientes internos (formulário em papel do hospital)",
+      "kind": "formulario-escaneado",
+      "sha256": "7831ddb32cad3a72141b707ccb8c157c1a2789fe3d718d47555330fab87fbae0",
+      "note": "Página 2 de Exames escaneados 2.pdf; mesmo arquivo de scanned-2026-11-09."
+    },
+    "catalogo-aghu": {
+      "title": "Exames UDI AGHu.xlsx",
+      "kind": "planilha",
+      "sha256": "da83313b7cfe0ae6346b65036451e07ca9e430899947ab383ebed28793e1676a",
+      "note": "Origem de data/exames.json (siglas e nomes)."
+    },
+    "catalogo": {
+      "title": "Cadastro de preparos herdado do projeto (data/preparos.json)",
+      "kind": "cadastro-herdado",
+      "sha256": null,
+      "note": "Texto herdado da turma anterior; a folha de origem não foi localizada nos documentos recebidos."
+    }
+  }
+}

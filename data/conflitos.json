@@ -6,7 +6,10 @@
     {
       "id": "rx-enema-opaco-pediatrico-preparo",
       "subject": "Preparo pediátrico para enema opaco",
-      "preparo_ids": ["rx_enema_opaco_crianca", "rx_enema_opaco_adulto"],
+      "preparo_ids": [
+        "rx_enema_opaco_crianca",
+        "rx_enema_opaco_adulto"
+      ],
       "status": "pending-udi",
       "linearIssue": "PRO-34",
       "impact": "A UDI deve definir a orientação e o escopo por idade, inclusive a fronteira entre os grupos adulto e criança.",
@@ -28,7 +31,10 @@
     {
       "id": "us-abdomen-preparo-e-contato",
       "subject": "Jejum, escopo e contato do ultrassom abdominal",
-      "preparo_ids": ["us_abdômen", "us_pelvica_vias_urinarias"],
+      "preparo_ids": [
+        "us_abdômen",
+        "us_pelvica_vias_urinarias"
+      ],
       "status": "pending-udi",
       "linearIssue": "PRO-34",
       "scopeNote": "Os grupos indicam somente possível escopo a decidir pela UDI, sem estender a folha abdominal a todos os exames pélvicos ou de vias urinárias.",
@@ -56,7 +62,9 @@
     {
       "id": "rx-histerossalpingografia-versao-vigente",
       "subject": "Confirmação da versão vigente de histerossalpingografia",
-      "preparo_ids": ["rx_histerossalpingografia"],
+      "preparo_ids": [
+        "rx_histerossalpingografia"
+      ],
       "status": "pending-udi",
       "linearIssue": "PRO-34",
       "impact": "A anotação manuscrita último exige confirmação documental de vigência pela UDI antes da incorporação de orientações. Não foi demonstrada uma segunda versão homologada.",
@@ -72,6 +80,30 @@
           "locator": "página 6, título impresso e seção antes do exame",
           "quote": "PREPARO HISTEROSSALPINGOGRAFIA / Jejum de 03 horas antes do exame.",
           "text": "O conteúdo impresso permanece como documento de vigência não confirmada. A UDI deve identificar formalmente qual versão deve orientar o cadastro."
+        }
+      ]
+    },
+    {
+      "id": "rx-enema-opaco-adulto-versao",
+      "subject": "Versão vigente do preparo adulto para enema opaco",
+      "preparo_ids": [
+        "rx_enema_opaco_adulto"
+      ],
+      "status": "pending-udi",
+      "linearIssue": "PRO-34",
+      "impact": "Há duas folhas para adulto: uma com simeticona, cronograma completo e restrição de leite, café, legumes e verduras na antevéspera; outra sem simeticona e só com \"evitar alimentos gordurosos\". A UDI deve indicar a vigente.",
+      "alternatives": [
+        {
+          "sourceId": "exames-escaneados",
+          "locator": "página 3 (igual a PREPAROS_EXAMES DE RAIO X CONTRASTADOS.pdf, página 7)",
+          "quote": "EVITAR ALIMENTOS GORDUROSOS, LEITE, CAFÉ, LEGUMES E VERDURAS; ... TOMAR 40 GOTAS DE LUFTAL DE 8/8 Hrs",
+          "text": "Versão com simeticona e cronograma completo da véspera."
+        },
+        {
+          "sourceId": "exames-escaneados",
+          "locator": "página 4, duas cópias (telefone 2126 3873)",
+          "quote": "-EVITAR ALIMENTOS GORDUROSOS. ... OBS: SE FOR CRIANÇA, NÃO PRECISA REALIZAR PREPARO.",
+          "text": "Versão sem simeticona, com observação sobre criança."
         }
       ]
     }
