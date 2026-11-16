@@ -93,7 +93,8 @@ describe('regressões observadas na comparação prática', () => {
 
   it('responde à pergunta de bexiga sem transformar ausência em dispensa', () => {
     const r = answer('Vou fazer ultrassom de abdômen superior. Preciso estar de bexiga cheia?')
-    expect(r.reply).toContain('Não tenho uma orientação específica sobre bexiga')
+    // Only the scanned ultrasound sheet mentions the bladder for the upper abdomen, and it is still to be confirmed.
+    expect(r.reply).toMatch(/folha do hospital ainda a confirmar.*bexiga/)
     expect(r.reply).not.toMatch(/não precisa|dispensa preparo|Jejum de 4 a 6h/)
   })
 

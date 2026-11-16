@@ -35,11 +35,11 @@ it("abdômen com sedação: mostra o conflito e não escolhe 4 nem 8 horas", asy
   }
 })
 
-it("enterotomografia: 8 horas e preparo adicional, sem nomear medicamento", async () => {
+it("enterotomografia: 8 horas e a caixa de macrogol para trazer, sem dose", async () => {
   const b = await ask(by("ENTTC"))
   expect(b.reply).toMatch(/8 horas/)
-  expect(b.reply).toMatch(/preparo adicional/)
-  expect(b.reply).not.toMatch(/muvinlax|macrogol|caixa/i)
+  expect(b.reply).toMatch(/trazer 1 caixa de macrogol/)
+  expect(b.reply).not.toMatch(/\bmg\b|gotas|comprimidos/i)
 })
 
 it("exame com contraste sem jejum documentado: mostra alergia e hidratação e diz que o jejum não está cadastrado", async () => {
@@ -63,10 +63,10 @@ it("tomografia de tórax sem contraste e sem sedação continua sem inventar jej
   expect(b.reply).not.toMatch(/[0-9]+ horas/)
 })
 
-it("nenhuma resposta de tomografia traz medicamento ou dose", async () => {
+it("nenhuma resposta de tomografia traz dose nem decisão de medicamento (o macrogol da enterotomografia é algo a trazer)", async () => {
   for (const e of all.filter((x) => x.modalidade === "tomografia_computadorizada")) {
     const b = await ask(e)
-    expect(b.reply, e.nome).not.toMatch(/metformina|antial[eé]rgico|muvinlax|macrogol|\bmg\b|polaramine|suspend/i)
+    expect(b.reply, e.nome).not.toMatch(e.sigla === "ENTTC" ? /metformina|antial[eé]rgico|\bmg\b|polaramine|suspend/i : /metformina|antial[eé]rgico|muvinlax|macrogol|\bmg\b|polaramine|suspend/i)
   }
 }, 120000)
 

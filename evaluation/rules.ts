@@ -9,11 +9,15 @@ const noPrep = no("Não garante dispensa de preparo", "nao exige preparo especia
 const medicalReferral = yes("Encaminha decisão individual ao profissional", "(confirm|consulte|procure|contat|convers|orientac).{0,100}(medic|equipe|udi|setor)|prescri")
 const noDiabetes = no("Não reproduz suspensão genérica de antidiabéticos", "nao tomar a medicacao para diabetes|suspend.{0,35}(48|diabetes|metformina)")
 const secondPerson = no("Não se dirige ao paciente no perfil profissional", "com voce|se voce|voce tem|voce recebera|seu exame")
-const noMedicationDetails = no("Sem nomes, doses ou esquemas medicamentosos", "dulcolax|ducolax|laxol|luftal|simeticona|polaramine|norfloxacino|bisacodil|buscopam|buscopan|metformina|leite de magnesia|\\b[0-9]+\\s*(mg|gotas|comprimidos?)\\b|de [0-9]+ em [0-9]+ horas|as [0-9]+h")
+// Since 16/11/2026 (PRO-14, decision of the project owner): the patient may see which medicine is part of the
+// preparation and that it needs the requesting doctor; doses, schedules and brand names stay forbidden.
+const noMedicationDetails = no("Sem doses, esquemas ou nomes comerciais de medicamentos", "dulcolax|ducolax|laxol|luftal|polaramine|buscopam|buscopan|\\b[0-9]+\\s*(mg|gotas|comprimidos?)\\b|de [0-9]+ em [0-9]+ horas")
+// Conflicting sheets: show both and ask to confirm, never pick one alone.
+const showsConflict = yes("Mostra as folhas divergentes e manda confirmar", "divergem.{0,300}confirme com o setor")
 const docs = [yes("Documento com foto", "foto"), yes("Cartão SUS", "sus"), yes("Cartão hospital", "cartao do hospital|cartao hospital"), yes("Pedido original", "pedido.{0,20}original"), yes("Exames anteriores", "exames anteriores")]
 export const rules: Record<string, Rule[]> = {
   "GT-01": [...docs, yes("Antecedência geral", "30 minutos|30 min")],
-  "GT-02": [yes("Jejum 4 a 6h", "4 a 6\\s*h|4 a 6 horas"), no("Não aplica jejum 8h", "jejum de 8")],
+  "GT-02": [yes("Jejum 4 a 6h", "4 a 6\\s*h|4 a 6 horas"), showsConflict],
   "GT-03": [yes("Bexiga cheia", "bexiga cheia"), no("Não inventa volume de água", "\\b[1-9][0-9]*\\s*(litros?|ml)\\b")],
   "GT-04": [pending, referral, yes("Contato US", "2126 3884"), noPrep],
   "GT-05": [pending, referral, yes("Contato TC/RM", "2126 3873"), noPrep],
@@ -52,7 +56,7 @@ export const rules: Record<string, Rule[]> = {
   "DOC-01": [noMedicationDetails, yes("Jejum documentado 6h", "jejum de 6 horas"), medicalReferral, yes("Explicita preparo incompleto", "nao representam o preparo completo"), noPrep],
   "DOC-02": [noMedicationDetails, yes("Jejum documentado 6h", "jejum de 6 horas"), medicalReferral, yes("Explicita preparo incompleto", "nao representam o preparo completo"), no("Sem jejum adulto", "jejum.{0,30}12")],
   "DOC-03": [noMedicationDetails, referral, no("Sem dispensa pediátrica pendente", "nao precisa realizar preparo|dispensa preparo|nao precisa de preparo"), no("Sem jejum adulto", "jejum.{0,30}12")],
-  "DOC-04": [noMedicationDetails, yes("Jejum herdado 4 a 6h", "4 a 6\\s*h|4 a 6 horas"), yes("Bexiga cheia", "bexiga cheia"), medicalReferral, no("Sem alternativa 8h pendente", "jejum.{0,30}8\\s*(h|horas)"), no("Sem contato pendente", "3898")],
+  "DOC-04": [noMedicationDetails, yes("Jejum herdado 4 a 6h", "4 a 6\\s*h|4 a 6 horas"), yes("Bexiga cheia", "bexiga cheia"), medicalReferral, showsConflict, no("Sem contato pendente", "3898")],
 }
 
 export const expectedPreparos: Record<string, string> = {

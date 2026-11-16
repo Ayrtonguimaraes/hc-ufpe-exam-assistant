@@ -5,9 +5,9 @@ import { POST } from '@/app/api/chat/route'
 it('abdômen tem uma orientação, sem variante pré-transplante nem dose', () => {
  const r=generateMockResponse('Vou fazer ultrassom de abdômen total. Qual o preparo?', 'patient')
  expect(r.sources.some(s=>/transplante/i.test(s.nome))).toBe(false)
- expect((r.reply.match(/Jejum de 4 a 6h/g)||[])).toHaveLength(1)
- expect(r.reply).not.toMatch(/40 gotas|simeticona|Luftal/i)
- expect(r.reply).toContain('medicamentos')
+ expect((r.reply.match(/\*\*Jejum:\*\*/g)||[])).toHaveLength(1)
+ expect(r.reply).toMatch(/divergem.*8 horas.*4 a 6 horas.*Confirme com o setor/)
+ expect(r.reply).not.toMatch(/40 gotas|Luftal|de 6 em 6/i)
 })
 it('densitometria responde apenas jejum e chegada, uma vez', () => {
  const r=generateMockResponse('Densitometria precisa de jejum? Com quanto tempo chego?', 'patient')
