@@ -1,7 +1,7 @@
 import registry from '@/data/documentary-evidence.json'
-import type { EvidenceReference, Exame, Preparo } from './types'
+import type { EvidenceReference, Exame, Preparo, Profile } from './types'
 
-type Fact = { id: string; text: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; supersedes?: string[] }
+type Fact = { id: string; text: string; textProfessional?: string; topic: string; appliesTo: string[]; locator: string; quote: string; sourceId: string; modality: string; supersedes?: string[] }
 const facts = registry.facts as Fact[]
 
 /**
@@ -15,6 +15,11 @@ export function factsForExam(exam: Exame, preparation: Preparo): EvidenceReferen
   const hidden = new Set(applicable.flatMap(f => f.supersedes ?? []))
   return applicable.filter(f => !hidden.has(f.id)).map(f => {
     const source = registry.sources[f.sourceId as keyof typeof registry.sources]
-    return {factId:f.id,text:f.text,topic:f.topic,sourceTitle:source.title,sourceHash:source.sha256,locator:f.locator,quote:f.quote,validation:'pending-udi'}
+    return {factId:f.id,text:f.text,...(f.textProfessional ? {textProfessional:f.textProfessional} : {}),topic:f.topic,sourceTitle:source.title,sourceHash:source.sha256,locator:f.locator,quote:f.quote,validation:'pending-udi'}
   })
+}
+
+/** Fact wording for the active profile: professionals read about "the patient", not "you". */
+export function evidenceText(fact: Pick<EvidenceReference, 'text' | 'textProfessional'>, profile: Profile): string {
+  return profile === 'professional' ? fact.textProfessional ?? fact.text : fact.text
 }

@@ -8,6 +8,8 @@ import { asksMedicationDecision, medicationReferral } from "@/lib/medication-pol
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { parseFilter, classifyPreparo } from "@/lib/aggregate"
 import { restrictionsForQuestion, excludesExam } from "@/lib/service-restrictions"
+import { evidenceText } from "@/lib/documentary-evidence"
+import { asksInpatientFlow, inpatientModalities, inpatientFlowMarkdown } from "@/lib/inpatient-checklist"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 const exames = examesData as Exame[]
@@ -91,7 +93,7 @@ function buildResponse(
   const restricted = forced ? [] : restrictionsForQuestion(message, matched)
   if (restricted.length) {
   const attention = {
-    reply: '**Atenção:**\n\n' + restricted.map(r => `- ${r.text}`).join('\n') + `\n\nEssas informações vêm da folha de orientações de tomografia e ressonância do HC-UFPE e ainda precisam ser confirmadas pela equipe. Fale com o setor antes do exame: ${preparos.meta.orientacoes_gerais.telefones.tomografia_ressonancia}.`,
+    reply: '**Atenção:**\n\n' + restricted.map(r => `- ${evidenceText(r, profile)}`).join('\n') + `\n\nEssas informações vêm da folha de orientações de tomografia e ressonância do HC-UFPE e ainda precisam ser confirmadas pela equipe. ${profile === 'professional' ? 'Informe ao setor antes do exame' : 'Fale com o setor antes do exame'}: ${preparos.meta.orientacoes_gerais.telefones.tomografia_ressonancia}.`,
     sources: [{ nome: 'Orientações de tomografia e ressonância (folha do setor)', evidence: restricted, evidenceStatus: 'documentary-only' as const }],
   }
   // Pregnancy or an implant does not rule the exam out: the notice comes first, then the exam guidance.
@@ -99,6 +101,8 @@ function buildResponse(
   if (composed) return { reply: attention.reply + '\n\n' + composed.reply.replace(/^Olá!\s*/, ''), sources: [...attention.sources, ...composed.sources] }
   return attention
   }
+  // Professional asking about an inpatient (request, call the day before, prescription sent along, venous access).
+  if (!forced && profile === "professional" && asksInpatientFlow(message)) return inpatientReply(message, history, matched)
   const intent = forced ? undefined : deterministicIntent(message) ?? (deterministicIntent(conversationQuery(message, history)) === "clarify" ? "clarify" : undefined)
   if (intent === 'missing') return {reply:'Não tenho um preparo específico cadastrado para um exame que não foi identificado no catálogo. Isso não significa que ele dispense preparo. Confirme com o setor antes do exame.\n\nContato para confirmar: ' + phoneForModalidade(parseFilter(message).modalidade ?? '') + '.', sources:[]}
   if (intent === 'attributes') return {reply:'A mensagem menciona atributos diferentes para o exame. O pedido informa com ou sem contraste e com ou sem sedação? Confirme a variante para evitarmos misturar orientações.', sources:[]}
@@ -155,6 +159,21 @@ function buildResponse(
   const composed = composeAnswer(forced ? `${conversationQuery(message, history)} ${forced[0].nome}` : conversationQuery(message, history), matched, preparos, profile, message)
   if (composed) return fluxo ? { reply: composed.reply + "\n\n" + fluxo.reply, sources: [...composed.sources, ...fluxo.sources] } : composed
   return {reply: "Não consegui identificar uma orientação compatível. Confirme o nome completo do exame com a UDI.", sources: []}
+}
+
+/** Documented inpatient flow for the modality asked, followed by the exam guidance when an exam was identified. */
+function inpatientReply(message: string, history: ChatMessage[], matched: Exame[]): { reply: string; sources: Source[] } {
+  const flows = inpatientModalities(message, matched).map(inpatientFlowMarkdown).filter((f): f is string => !!f)
+  const intro = "Fluxo do paciente internado segundo os documentos do setor. O fluxo ainda precisa ser validado com a UDI e a enfermagem."
+  const tail = "Para o preparo do exame separado por responsável e por prazo (ao pedir, 48h ou véspera, jejum, antes de descer e o que informar ao setor), use **Checklist do internado** no topo do chat. O checklist pode ser copiado ou impresso para anexar à prescrição."
+  const sources: Source[] = [{ nome: "Fluxo do paciente internado (documentos do setor, validação pendente)" }]
+  const composed = matched.length ? composeAnswer(conversationQuery(message, history), matched, preparos, "professional", message) : null
+  if (composed) {
+    // The composed answer already ends with the same inpatient block; keep the flow first and the exam guidance after it.
+    const body = composed.reply.split("\n\n**Se o paciente estiver internado**")[0]
+    return { reply: [intro, ...flows, "**Preparo do exame**", body, tail].join("\n\n"), sources: [...sources, ...composed.sources] }
+  }
+  return { reply: [intro, ...flows, tail].join("\n\n"), sources }
 }
 
 /** Keep the conversational tone independent of factual response construction. */

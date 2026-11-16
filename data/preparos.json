@@ -117,28 +117,43 @@
     "rx_esofago": {
       "titulo": "Raio-X contrastado — Exame de esôfago",
       "orientacoes": "Realizar jejum de 6 horas antes do exame. Não há necessidade de outro preparo: comparecer ao local de realização do exame na data e horário marcados, com o Cartão do Hospital e a solicitação do exame.",
-      "status": "ok"
+      "status": "ok",
+      "fact_ids": [
+        "rx-esofago-jejum"
+      ]
     },
     "rx_urografia_excretora": {
       "titulo": "Raio-X contrastado — Urografia excretora",
       "orientacoes": "Véspera do exame: evitar alimentos gordurosos, como leite e café; jantar leve até as 18h; jejum absoluto após o jantar por 12 horas. Medicação: ingerir após o jantar 03 comprimidos de Dulcolax. No dia do exame: jejum absoluto de 12 horas.",
-      "status": "ok"
+      "status": "ok",
+      "fact_ids": [
+        "rx-urografia-preparo-documentado"
+      ]
     },
     "rx_uretrocistografia_adulto": {
       "titulo": "Raio-X contrastado — Uretrocistografia miccional (adulto)",
       "orientacoes": "Tomar Norfloxacino 400 mg de 12 em 12 horas por 3 dias: na véspera do exame, no dia do exame e um dia após o exame.",
-      "status": "ok"
+      "status": "ok",
+      "fact_ids": [
+        "rx-uretrocistografia-preparo-documentado"
+      ]
     },
     "rx_transito_intestinal": {
       "titulo": "Raio-X contrastado — Trânsito intestinal",
       "orientacoes": "No dia do exame: o paciente deverá estar em jejum por 6 horas.",
-      "status": "ok"
+      "status": "ok",
+      "fact_ids": [
+        "rx-transito-intestinal-jejum"
+      ]
     },
     "rx_uretrocistografia_crianca": {
       "titulo": "Raio-X contrastado — Uretrocistografia miccional (criança)",
       "orientacoes": "Tomar Norfloxacino 400 mg de 12 em 12 horas por 3 dias: na véspera do exame, no dia do exame e um dia após o exame.",
       "observacoes": "Em crianças, confirmar a dose do antibiótico com o médico solicitante conforme a prescrição.",
-      "status": "ok"
+      "status": "ok",
+      "fact_ids": [
+        "rx-uretrocistografia-preparo-documentado"
+      ]
     },
     "mamografia": {
       "titulo": "Mamografia",

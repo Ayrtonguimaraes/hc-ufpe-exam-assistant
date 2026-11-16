@@ -1,6 +1,6 @@
 # Avaliação das respostas do assistente UDI
 
-Os 32 casos preservam os IDs do documento Golden Truth v0.1 do Linear, atualizado em 28/10/2026. São referências provisórias, não protocolos aprovados. O formulário Word reorganiza as perguntas; sua numeração não deve ser usada como ID sem conferir o conteúdo.
+Os casos GT-01 a GT-32 preservam os IDs do documento Golden Truth v0.1 do Linear, atualizado em 28/10/2026. Os casos GT-33 a GT-36 (PRO-15) cobrem o perfil profissional e o fluxo do paciente internado. São referências provisórias, não protocolos aprovados. O formulário Word reorganiza as perguntas; sua numeração não deve ser usada como ID sem conferir o conteúdo.
 
 ## Executar
 
@@ -14,7 +14,7 @@ O comando chama o Route Handler POST diretamente, sem navegador nem servidor, fo
 
 Para avaliação com IA, disponibilize CLAUDE_API_KEY no ambiente do terminal e execute `pnpm eval:llm`. A chave não é lida automaticamente de .env.local pelo executor. Chamadas ao modelo podem gerar custo. Perguntas sobre decisões individuais de medicamentos recebem uma resposta determinística antes da IA; o campo responsePath identifica esse caminho como medication-policy. Se a IA cair para fallback por indisponibilidade, a execução falha em vez de apresentar o resultado como LLM. Nenhuma avaliação LLM foi executada no baseline inicial.
 
-Para exigir que todas as verificações passem, use `EVAL_STRICT=1 pnpm eval:fallback`. No modo padrão, falhas do produto são registradas no relatório; o processo falha apenas em erro do executor, resposta inválida ou invariantes do dataset. Um comando verde não significa que os 32 casos passaram.
+Para exigir que todas as verificações passem, use `EVAL_STRICT=1 pnpm eval:fallback`. No modo padrão, falhas do produto são registradas no relatório; o processo falha apenas em erro do executor, resposta inválida ou invariantes do dataset. Um comando verde não significa que os 36 casos passaram.
 
 ## Interpretar
 
