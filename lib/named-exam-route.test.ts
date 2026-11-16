@@ -43,3 +43,19 @@ it("linguagem leiga, com vários candidatos no catálogo, continua passando pelo
   expect(fetchSpy).toHaveBeenCalledTimes(1)
   expect(data.reason).toBe("llm-interpretation")
 })
+
+it.each(["quanto tempo demora a urografia excretora?", "como marco uma histerossalpingografia?"])("assunto fora do preparo continua indo ao modelo: %s", async message => {
+  process.env.GROQ_API_KEY = "test"
+  const topic = /marco/.test(message) ? "agendamento" : "duracao"
+  const reply = { modalidade: "radiologia_convencional", exame: null, contraste: null, sedacao: null, lado: null, topico: topic, varios_exames: false }
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(reply) } }] }) })))
+  const data = await (await ask(message)).json()
+  expect(data.reason).toBe("llm-interpretation")
+  expect(data.reply).toMatch(/Não tenho essa informação cadastrada/)
+})
+
+it("dois nomes técnicos na mesma mensagem pedem um exame de cada vez", async () => {
+  const data = await (await ask("vou fazer urografia e histerossalpingografia no mesmo dia")).json()
+  expect(data.reason).toBe("several-exams")
+  expect(data.reply).toMatch(/um de cada vez/)
+})

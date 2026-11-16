@@ -23,7 +23,14 @@ export function rareCatalogTerms(message: string, exames: Exame[]): string[] {
 /** True when the message names a rare catalog term and none of the answer's exams carries it. */
 export function answerDropsNamedTerm(message: string, sources: Source[], exames: Exame[]): boolean {
   const terms = rareCatalogTerms(message, exames)
-  if (!terms.length) return false
+  // An answer without exams (scheduling, duration, "one exam at a time") did not swap the exam.
+  if (!terms.length || !sources.length) return false
   const answered = sources.map(s => normalize(s.nome))
   return !terms.some(t => answered.some(n => n.includes(stem(t))))
+}
+
+/** Two rare terms that point to different exams (e.g. "urografia e histerossalpingografia"): the message names several exams. */
+export function namesSeveralExams(message: string, exames: Exame[]): boolean {
+  const sets = rareCatalogTerms(message, exames).map(t => new Set(exames.filter(e => normalize(`${e.nome} ${e.nome_usual ?? ""}`).includes(stem(t))).map(e => e.sigla)))
+  return sets.some((a, i) => sets.slice(i + 1).some(b => ![...a].some(s => b.has(s))))
 }

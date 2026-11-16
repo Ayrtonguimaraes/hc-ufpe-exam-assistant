@@ -18,8 +18,8 @@ import { asksMedicationDecision } from "@/lib/medication-policy"
 import { deterministicIntent, wantsListaRaiox } from "@/lib/request-policy"
 import { restrictionsForQuestion } from "@/lib/service-restrictions"
 import { asksInpatientFlow } from "@/lib/inpatient-checklist"
-import { interpretQuestion, answerFromInterpretation, MODALITY_CUE } from "@/lib/question-interpreter"
-import { answerDropsNamedTerm } from "@/lib/named-terms"
+import { interpretQuestion, answerFromInterpretation, asksNonPreparationTopic, oneExamAtATime, MODALITY_CUE } from "@/lib/question-interpreter"
+import { answerDropsNamedTerm, namesSeveralExams } from "@/lib/named-terms"
 import type { ChatMessage, Exame, PreparosFile, Profile, Source } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -255,7 +255,10 @@ export async function POST(req: Request) {
     const modalityUnknown = examModalityChoices(conversationQuery(message, history), exames).length > 0 && !MODALITY_CUE.test(normalize(message))
     // The message itself names exactly one catalog exam (e.g. "urografia excretora"): the catalog search already knows the
     // exam, and the model could only replace it with a looser translation ("vias urinárias" → another modality).
-    const namesOneExam = searchExames(message, exames).length === 1
+    // Two technical exam names in one message (e.g. "urografia e histerossalpingografia"): one exam at a time, as with common names.
+    if (namesSeveralExams(message, exames) && !asksNonPreparationTopic(message)) return Response.json({ ...oneExamAtATime(profile, history), mocked: true, reason: "several-exams" })
+    // Questions about scheduling, duration, companion or results, and messages naming several exams, still go to the model.
+    const namesOneExam = searchExames(message, exames).length === 1 && !asksNonPreparationTopic(message) && !namesSeveralExams(message, exames)
     if (process.env.GROQ_API_KEY && !modalityUnknown && !namesOneExam && !asksMedicationDecision(message) && !restrictionsForQuestion(message, resolveExames(message, history)).length &&
         !["count", "missing", "attributes", "documents"].includes(directIntent ?? "") && !wantsAggregateList(message) && !wantsListaRaiox(message) && !wantsFluxoRaiox(message)) {
       const interpretation = await interpretQuestion(message, history)

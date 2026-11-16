@@ -156,9 +156,14 @@ const TOPIC_CUE: Partial<Record<Topic, RegExp>> = {
 }
 const plain = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
+export function oneExamAtATime(profile: Profile, history: ChatMessage[]): { reply: string; sources: Source[] } {
+  const text = "Você mencionou mais de um exame. Vamos um de cada vez para eu não misturar as orientações: qual deles você quer ver primeiro? Se puder, copie o nome como está no pedido."
+  return { reply: (profile === "patient" && !history.length ? "Olá!\n\n" : "") + text + (profile === "patient" ? "\n\nSe tiver outra dúvida sobre o exame, pode perguntar. Estou à disposição!" : ""), sources: [] }
+}
+
 export function answerFromInterpretation(i: Interpretation, profile: Profile, history: ChatMessage[], message = ""): { reply: string; sources: Source[] } | null {
   const greet = (text: string) => (profile === "patient" && !history.length ? "Olá!\n\n" : "") + text + (profile === "patient" ? "\n\nSe tiver outra dúvida sobre o exame, pode perguntar. Estou à disposição!" : "")
-  if (i.varios_exames && severalExamsInMessage(message)) return { reply: greet("Você mencionou mais de um exame. Vamos um de cada vez para eu não misturar as orientações: qual deles você quer ver primeiro? Se puder, copie o nome como está no pedido."), sources: [] }
+  if (i.varios_exames && severalExamsInMessage(message)) return oneExamAtATime(profile, history)
   const cue = TOPIC_CUE[i.topico]
   if ((NOT_PREPARATION.includes(i.topico) || i.topico === "documentos") && cue && !cue.test(plain(message))) i = { ...i, topico: "preparo" }
   if (NOT_PREPARATION.includes(i.topico)) return {
@@ -169,4 +174,10 @@ export function answerFromInterpretation(i: Interpretation, profile: Profile, hi
   if (!i.modalidade && !i.exame && MODALITY_CUE.test(plain(message))) return null
   if (!i.modalidade && !i.exame) return { reply: greet("Para eu responder, preciso saber qual exame você vai fazer. Pode me dizer o nome que está no pedido médico?"), sources: [] }
   return generateMockResponse(queryFromInterpretation(i), profile, history)
+}
+
+/** The message asks about scheduling, duration, companion or results: a subject the model routes to "no information" instead of preparation. */
+export function asksNonPreparationTopic(message: string): boolean {
+  const q = plain(message)
+  return NOT_PREPARATION.some(topic => TOPIC_CUE[topic]?.test(q))
 }
