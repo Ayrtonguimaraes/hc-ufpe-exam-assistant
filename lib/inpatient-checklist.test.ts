@@ -13,7 +13,7 @@ describe("checklist de preparo do internado (PRO-15)", () => {
     expect(section(c, "ao_pedir")).toMatch(/metformina/)
     expect(section(c, "antes_de_descer")).toMatch(/Jelco 20/)
     expect(section(c, "antes_de_descer")).not.toMatch(/Jelco 18/)
-    expect(c!.alerts.map(a => a.text).join(" ")).toMatch(/não está cadastrado/)
+    expect(c!.alerts.map(a => a.text).join(" ")).toMatch(/documentado só em parte/)
     expect(c!.sections.flatMap(s => s.items).every(i => i.source.length > 0)).toBe(true)
   })
 
@@ -42,7 +42,7 @@ describe("checklist de preparo do internado (PRO-15)", () => {
 
   it("uretrocistografia: medicamento a prescrever na véspera, sem acesso venoso", () => {
     const c = buildInpatientChecklist("RXURE", {}, "radiologia_convencional")
-    expect(section(c, "ao_pedir")).toMatch(/Norfloxacino/)
+    expect(section(c, "ao_pedir")).toMatch(/norfloxacino/i)
     expect(section(c, "antecedencia")).toMatch(/véspera/)
     expect(section(c, "antes_de_descer")).not.toMatch(/Jelco/)
   })
@@ -96,5 +96,52 @@ describe("perfil profissional e fluxo do internado no chat", () => {
     expect(pro).toMatch(/Se o paciente estiver internado/)
     expect(pro).toMatch(/maqueiro/)
     expect(patient).not.toMatch(/internado/)
+  })
+})
+
+describe("checklist v2: dados padronizados, criança, horários e passagem SBAR", () => {
+  const text = (c: ReturnType<typeof buildInpatientChecklist>) => checklistToText(c!)
+
+  it("criança nunca recebe a dose adulta da folha", () => {
+    for (const c of [buildInpatientChecklist("RXURP", {}), buildInpatientChecklist("RXURE", { idade: 5 })]) {
+      expect(text(c)).not.toMatch(/400\s*mg|12 em 12/)
+      expect(text(c)).toMatch(/Dose para criança não documentada/)
+    }
+    expect(text(buildInpatientChecklist("RXURE", { idade: 40 }))).toMatch(/400 mg/)
+  })
+
+  it("metformina na TC com contraste vem do documento, com a divergência das diretrizes", () => {
+    const c = buildInpatientChecklist("TCABC", { diabetico: true })
+    const t = text(c)
+    expect(t).toMatch(/48 horas antes e após/)
+    expect(t).toMatch(/P101/)
+    expect(t).toMatch(/TFGe/)
+    expect(t).not.toMatch(/prazo de suspensão não está cadastrado/)
+  })
+
+  it("raio-X contrastado usa as folhas: urografia com dieta, laxante e jejum de 12 horas", () => {
+    const t = text(buildInpatientChecklist("RXUR1", {}))
+    expect(t).toMatch(/bisacodil/)
+    expect(t).toMatch(/12 horas/)
+    expect(t).toMatch(/PREPAROS_EXAMES DE RAIO X CONTRASTADOS\.pdf — p4/)
+  })
+
+  it("com o horário do exame, o jejum e o início do preparo ganham horário concreto", () => {
+    const examAt = new Date(2026, 10, 18, 10, 0)
+    const ct = buildInpatientChecklist("TCABC", {}, undefined, { examAt })
+    expect(text(ct)).toMatch(/a partir das 06:00 de 18\/11/)
+    const uro = buildInpatientChecklist("RXUR1", {}, undefined, { examAt })
+    expect(text(uro)).toMatch(/a partir das 22:00 de 17\/11/)
+    expect(text(uro)).toMatch(/começar em 17\/11 \(véspera\)/)
+  })
+
+  it("a passagem para o setor resume situação, condições e o que precisa estar feito", () => {
+    const c = buildInpatientChecklist("TCABC", { diabetico: true, oxigenio: true }, undefined, { examAt: new Date(2026, 10, 18, 10, 0) })
+    expect(c!.handoff.situacao).toMatch(/18\/11 às 10:00/)
+    expect(c!.handoff.historico).toMatch(/diabetico/)
+    expect(c!.handoff.avaliacao.join(" ")).toMatch(/metformina/)
+    const t = text(c)
+    expect(t).toMatch(/PASSAGEM PARA O SETOR DE IMAGEM \(SBAR\)/)
+    expect(t).toMatch(/Conferido por/)
   })
 })

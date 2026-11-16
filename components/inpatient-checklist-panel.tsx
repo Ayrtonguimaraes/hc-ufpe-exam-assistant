@@ -38,6 +38,7 @@ const DEMOS: { label: string; sigla: string; modalidade: string; conditions: Pat
   { label: "TC de abdome com contraste em diabético", sigla: "TCABC", modalidade: "tomografia_computadorizada", conditions: { diabetico: true } },
   { label: "RM com sedação", sigla: "RMC9", modalidade: "ressonancia_magnetica", conditions: { sedacao: true } },
   { label: "Uretrocistografia", sigla: "RXURE", modalidade: "radiologia_convencional", conditions: {} },
+  { label: "Uretrocistografia pediátrica", sigla: "RXURP", modalidade: "radiologia_convencional", conditions: {} },
 ]
 
 const MAX_RESULTS = 40
@@ -59,6 +60,7 @@ export function InpatientChecklistPanel({ onClose }: { onClose: () => void }) {
   const [conditions, setConditions] = useState<PatientConditions>({})
   const [peso, setPeso] = useState("")
   const [idade, setIdade] = useState("")
+  const [examAt, setExamAt] = useState("")
   const [feedback, setFeedback] = useState("")
 
   const options = useMemo(() => {
@@ -69,8 +71,8 @@ export function InpatientChecklistPanel({ onClose }: { onClose: () => void }) {
   }, [modalidade, query])
 
   const checklist = useMemo(
-    () => (sigla ? buildInpatientChecklist(sigla, { ...conditions, pesoKg: parseNumber(peso), idade: parseNumber(idade) }, modalidade) : null),
-    [sigla, conditions, peso, idade, modalidade],
+    () => (sigla ? buildInpatientChecklist(sigla, { ...conditions, pesoKg: parseNumber(peso), idade: parseNumber(idade) }, modalidade, { examAt: examAt ? new Date(examAt) : undefined }) : null),
+    [sigla, conditions, peso, idade, modalidade, examAt],
   )
 
   function selectModality(m: string) {
@@ -202,6 +204,10 @@ export function InpatientChecklistPanel({ onClose }: { onClose: () => void }) {
                 Idade (anos)
                 <input inputMode="numeric" value={idade} onChange={(e) => setIdade(e.target.value)} className="w-20 rounded-lg border border-input bg-background px-2 py-1 text-sm" aria-label="Idade em anos" />
               </label>
+              <label className="flex items-center gap-2 text-sm">
+                Data e hora do exame
+                <input id="inpatient-exam-at" type="datetime-local" value={examAt} onChange={(e) => setExamAt(e.target.value)} className="rounded-lg border border-input bg-background px-2 py-1 text-sm" aria-label="Data e hora do exame" />
+              </label>
             </div>
           </section>
 
@@ -210,7 +216,7 @@ export function InpatientChecklistPanel({ onClose }: { onClose: () => void }) {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <p className="font-medium text-ink">{checklist.exam.nome}</p>
-                  <p className="text-xs text-steel">Código AGHU: {checklist.exam.sigla} · Contato do setor: {checklist.contact}</p>
+                  <p className="text-xs text-steel">Código AGHU: {checklist.exam.sigla}{checklist.examAt ? ` · Exame em ${checklist.examAt}` : ""} · Contato do setor: {checklist.contact}</p>
                 </div>
                 <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[11px] text-warning-foreground">Validação pendente</span>
               </div>
@@ -241,6 +247,23 @@ export function InpatientChecklistPanel({ onClose }: { onClose: () => void }) {
                   </ul>
                 </div>
               ))}
+
+              <div className="mt-4 rounded-lg border border-border bg-mist/60 p-3 text-sm">
+                <h3 className="font-semibold text-azure-deep">Passagem para o setor de imagem (SBAR)</h3>
+                <p className="mt-1"><span className="font-medium">S —</span> {checklist.handoff.situacao}</p>
+                <p><span className="font-medium">B —</span> {checklist.handoff.historico}</p>
+                <p className="font-medium">A — Preparo conferido antes de descer:</p>
+                <ul className="ml-1 flex flex-col gap-1">
+                  {checklist.handoff.avaliacao.map((a, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span aria-hidden="true" className="mt-0.5 size-4 shrink-0 rounded border border-steel/60" />
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1"><span className="font-medium">R —</span> {checklist.handoff.recomendacao}</p>
+                <p className="mt-1 text-[11px] text-steel">Fonte: {checklist.handoff.source}</p>
+              </div>
 
               {checklist.flow && (
                 <details className="mt-4 text-sm">
