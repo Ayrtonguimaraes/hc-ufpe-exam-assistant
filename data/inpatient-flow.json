@@ -42,7 +42,7 @@
       { "text": "Conferir se o preparo foi feito e enviar a prescrição médica junto com o paciente.", "sourceId": "orientacoes-tc-rm", "locator": "P66", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
       { "text": "Retirar adornos e qualquer objeto de metal.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80; checklist de internos", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
       { "text": "Esvaziar bolsas coletoras e drenos.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
-      { "text": "Conferir a analgesia antes do transporte.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
+      { "text": "Em caso de dor, fazer a analgesia no setor antes do envio (\"realizar analgesia prévia no setor, se dor\").", "sourceId": "orientacoes-tc-rm", "locator": "P79; fluxograma de TC", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
       { "text": "Paciente instável: providenciar acompanhamento médico no transporte e no exame.", "sourceId": "orientacoes-tc-rm", "locator": "P75–80", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
       { "text": "Enviar RG e questionário preenchido; paciente de máscara e com acompanhante.", "sourceId": "checklist-internos", "locator": "formulário de internos", "modalities": ["tomografia_computadorizada", "ressonancia_magnetica"] },
       { "text": "Enviar a guia, o termo e os questionários da RM preenchidos e assinados.", "sourceId": "fluxo-tc-rm", "locator": "fluxograma RM", "modalities": ["ressonancia_magnetica"] },

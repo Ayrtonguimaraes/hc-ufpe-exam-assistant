@@ -5,6 +5,7 @@ import registry from "@/data/documentary-evidence.json"
 import { factsForExam } from "./documentary-evidence"
 import { normalize } from "./search"
 import { prettifyExamName } from "./exam-options"
+import { daysBefore, fastingHours, standardItemsFor, standardSource, type StandardItem } from "./standard-preparation"
 import type { Exame, PreparosFile } from "./types"
 
 const exames = examesData as Exame[]
@@ -66,8 +67,18 @@ export type ChecklistSection = {
   items: ChecklistItem[]
 }
 
+/** Handover to the imaging unit in SBAR form: what was checked, by whom, before the patient is sent. */
+export type Handoff = { situacao: string; historico: string; avaliacao: string[]; recomendacao: string; source: string }
+
+export type ChecklistOptions = {
+  /** Date and time of the exam; when given, each step gets a concrete start time. */
+  examAt?: Date
+}
+
 export type InpatientChecklist = {
   exam: { nome: string; sigla: string; modalidade: string }
+  examAt?: string
+  handoff: Handoff
   alerts: ChecklistItem[]
   sections: ChecklistSection[]
   flow: { title: string; steps: ChecklistItem[] } | null
@@ -84,6 +95,58 @@ const MEDICATION = /medica[cç]|comprimido|gotas|\bmg\b|polaramine|norfloxacino|
 const DIABETES = /diabetes|metformina/i
 const AHEAD = /antev[eé]spera|v[eé]spera|48\s?h|dias? antes|\d+ dias|ap[oó]s o jantar|um dia ap[oó]s/i
 const FASTING = /jejum/i
+
+
+const CBR_METFORMIN = "Diretrizes para o uso de meios de contraste intravenosos (equipe do curso AVR/CBR, adaptadas da ESUR v10) — divergência a decidir pela UDI"
+const HANDOFF_SOURCE = "Proposta do projeto: passagem de cuidado em formato SBAR (validação pendente pela UDI e pela enfermagem)"
+
+const pad = (n: number) => String(n).padStart(2, "0")
+const day = (d: Date) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`
+const clock = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+/** "→ sem comer nem beber a partir das 06:00 de 17/11" when the exam time is known. */
+function fastingTime(text: string | StandardItem, examAt?: Date): string {
+  const hours = fastingHours(text)
+  if (!examAt || !hours) return ""
+  const start = new Date(examAt.getTime() - hours * 3600_000)
+  return ` → sem comer nem beber a partir das ${clock(start)} de ${day(start)}.`
+}
+
+/** "→ começar em 16/11 (véspera)" when the exam date is known. */
+function startDay(days: number | undefined, examAt?: Date): string {
+  if (days === undefined) return ""
+  const label = days === 1 ? "véspera" : days === 2 ? "antevéspera" : `${days} dias antes`
+  if (!examAt) return ` Começa ${days === 1 || days === 2 ? "na " : ""}${label}.`
+  const start = new Date(examAt.getTime() - days * 86400_000)
+  return ` → começar em ${day(start)} (${label}).`
+}
+
+/** Items that depend on a patient condition only apply when the professional marked it. */
+function conditionApplies(item: StandardItem, c: PatientConditions, child: boolean): boolean {
+  const cond = item.condicao ?? ""
+  if (!cond) return true
+  if (cond.includes("crianca")) return child
+  if (cond.startsWith("diabetic")) return !!c.diabetico
+  if (cond === "historico_de_alergia") return !!c.alergiaContraste
+  if (cond === "hemodialise") return !!c.hemodialise
+  return true
+}
+
+const CONFLICT_PREFIX = "Folhas divergentes (decisão da UDI pendente): "
+
+/** Medication text: the dose written in the sheet is an adult dose, so it is never shown for a child unless the item is for children. */
+function drugText(item: StandardItem, child: boolean): string {
+  const m = item.medicamento!
+  const prefix = item.estado === "conflito-pendente" ? CONFLICT_PREFIX : ""
+  if (child && !item.condicao?.includes("crianca") && m.classe !== "D") {
+    return `${prefix}${item.texto} Dose para criança não documentada na folha (a posologia registrada é de adulto): definir com o médico assistente e confirmar com a UDI.`
+  }
+  return `${prefix}${item.texto} Na fonte: ${m.posologiaNaFonte}.${m.exigeReceita ? " Exige receita." : ""}`
+}
+
+function itemText(item: StandardItem): string {
+  return `${item.estado === "conflito-pendente" ? CONFLICT_PREFIX : ""}${item.texto}${item.ressalva ? ` (${item.ressalva})` : ""}`
+}
 
 function cite(item: Pick<SourcedText, "sourceId" | "locator">): string {
   return `${flow.sources[item.sourceId] ?? item.sourceId} — ${item.locator} (${PENDING})`
@@ -154,7 +217,7 @@ export function inpatientFlow(modalidade: string): { title: string; steps: Check
  * Builds the inpatient preparation checklist split by who acts and when.
  * Pure: no patient data is stored, only the exam and the conditions ticked in the form.
  */
-export function buildInpatientChecklist(sigla: string, conditions: PatientConditions = {}, modalidade?: string): InpatientChecklist | null {
+export function buildInpatientChecklist(sigla: string, conditions: PatientConditions = {}, modalidade?: string, options: ChecklistOptions = {}): InpatientChecklist | null {
   const exam = exames.find(e => e.sigla === sigla && (!modalidade || e.modalidade === modalidade))
   if (!exam) return null
   const preparo = preparos.preparos[exam.preparo_id]
@@ -166,6 +229,21 @@ export function buildInpatientChecklist(sigla: string, conditions: PatientCondit
   const pending = !preparo || preparo.status === "pendente"
   const registered = pending ? [] : sentencesOf(preparo.orientacoes).concat(sentencesOf(preparo.observacoes))
   const src = catalogSource(preparo?.titulo ?? exam.preparo_id)
+  const examAt = options.examAt && !Number.isNaN(options.examAt.getTime()) ? options.examAt : undefined
+  // A child, by the informed age or by the exam itself: adult doses from the sheets are never shown.
+  const child = (conditions.idade !== undefined && conditions.idade < 12) || /pediatric|infantil|crianca/.test(normalize(exam.nome))
+  const std = standardItemsFor(exam).filter(i => conditionApplies(i, conditions, child))
+  // Same drug from two sheets (e.g. simethicone in the general document and in the scanned sheet): one line, both sources.
+  const drugSources = new Map<string, string[]>()
+  const stdDrugs: StandardItem[] = []
+  for (const i of std.filter(i => i.medicamento && i.medicamento.classe !== "D").sort((a, b) => Number(a.estado === "conflito-pendente") - Number(b.estado === "conflito-pendente"))) {
+    const key = `${i.tipo}:${i.medicamento!.principioAtivo}:${i.condicao ?? ""}`
+    if (!drugSources.has(key)) { drugSources.set(key, []); stdDrugs.push(i) }
+    drugSources.get(key)!.push(standardSource(i))
+  }
+  const drugSource = (i: StandardItem) => drugSources.get(`${i.tipo}:${i.medicamento!.principioAtivo}:${i.condicao ?? ""}`)?.join("; ") ?? standardSource(i)
+  const handoffItems = new Set<string>()
+  const facts = preparo ? factsForExam(exam, preparo).filter(f => f.topic === "fasting") : []
 
   const alerts: ChecklistItem[] = []
   const aoPedir: ChecklistItem[] = []
@@ -187,17 +265,33 @@ export function buildInpatientChecklist(sigla: string, conditions: PatientCondit
     alerts.push({ text: "O exame selecionado é sem sedação, mas o paciente foi marcado como necessitando de sedação. Confira a variante solicitada no AGHU.", source: CATALOG_GAP, highlight: true })
   }
   if (pending) {
-    alerts.push({ text: `O preparo específico deste exame não está cadastrado. Isso não significa que o exame dispense preparo; confirme com o setor (${phoneFor(exam.modalidade)}).`, source: CATALOG_GAP, highlight: true })
+    alerts.push(facts.length || std.length
+      ? { text: `O preparo deste exame está documentado só em parte: os itens abaixo vêm dos documentos. Confirme o restante com o setor (${phoneFor(exam.modalidade)}).`, source: CATALOG_GAP, highlight: true }
+      : { text: `O preparo específico deste exame não está cadastrado. Isso não significa que o exame dispense preparo; confirme com o setor (${phoneFor(exam.modalidade)}).`, source: CATALOG_GAP, highlight: true })
   }
 
   // 1. Ao pedir (médico)
   const requestStep = isRX ? inpatientFlow("radiologia_convencional")?.steps[0] : inpatientFlow(exam.modalidade)?.steps[0]
   if (requestStep && /aghu/i.test(requestStep.text)) aoPedir.push(requestStep)
-  const meds = registered.filter(s => MEDICATION.test(s) && !DIABETES.test(s))
-  for (const s of meds) {
-    aoPedir.push({ text: `Prescrever o medicamento do preparo, conforme o cadastro: ${s} Confirmar dose e esquema com o protocolo da UDI (inventário de medicamentos em validação).`, source: src, highlight: true })
+  if (stdDrugs.length) {
+    // Standardized items: medication with class, dose as written in the sheet and its source page.
+    for (const i of stdDrugs) {
+      const verb = i.tipo === "suspensao_medicamento" ? "Ajuste de medicação de uso contínuo" : i.medicamento!.classe === "A" ? "Prescrever o preparo (indispensável)" : "Se indicado"
+      aoPedir.push({ text: `${verb}: ${drugText(i, child)}`, source: drugSource(i), highlight: i.indispensavel })
+      if (i.indispensavel) handoffItems.add(`${i.tipo === "suspensao_medicamento" ? "Suspensão de" : "Medicamento do preparo:"} ${i.medicamento!.principioAtivo} prescrito e em curso`)
+    }
+    if (conditions.diabetico && attrs.contrast && stdDrugs.some(i => /metformina/.test(i.medicamento!.principioAtivo))) {
+      aoPedir.push({ text: "As diretrizes do CBR (curso AVR, adaptadas da ESUR v10) mantêm a metformina quando a TFGe é de 30 mL/min/1,73 m² ou mais; a regra da folha é mais restritiva. Registrar a função renal do paciente e confirmar com a UDI qual regra vale.", source: CBR_METFORMIN })
+    }
+  } else {
+    const meds = registered.filter(s => MEDICATION.test(s) && !DIABETES.test(s))
+    for (const s of meds) {
+      aoPedir.push(child
+        ? { text: "Prescrever o medicamento do preparo previsto no cadastro. Dose para criança não documentada (a posologia registrada é de adulto): definir com o médico assistente e confirmar com a UDI.", source: src, highlight: true }
+        : { text: `Prescrever o medicamento do preparo, conforme o cadastro: ${s} Confirmar dose e esquema com o protocolo da UDI (inventário de medicamentos em validação).`, source: src, highlight: true })
+    }
   }
-  if (conditions.diabetico && attrs.contrast) {
+  if (conditions.diabetico && attrs.contrast && !stdDrugs.some(i => /metformina|antidiab/.test(i.medicamento!.principioAtivo))) {
     const mriRule = registered.find(s => DIABETES.test(s))
     aoPedir.push(mriRule
       ? { text: `Paciente diabético: o cadastro registra "${mriRule}" Ajustar a metformina conforme o protocolo da instituição.`, source: src, highlight: true }
@@ -218,21 +312,37 @@ export function buildInpatientChecklist(sigla: string, conditions: PatientCondit
   }
 
   // 2. 48h ou véspera
-  for (const s of registered.filter(s => AHEAD.test(s) && !(FASTING.test(s) && !MEDICATION.test(s)))) {
-    if (DIABETES.test(s) && !conditions.diabetico) continue
-    antecedencia.push({ text: MEDICATION.test(s) ? `Iniciar no prazo (medicamento prescrito): ${s}` : s, source: src, highlight: MEDICATION.test(s) })
+  const ahead = std.filter(i => daysBefore(i) !== undefined && i.tipo !== "jejum" && i.medicamento?.classe !== "D" && (!i.medicamento || stdDrugs.includes(i)))
+  if (ahead.length) {
+    for (const i of ahead) {
+      const m = i.medicamento
+      const text = m
+        ? `${i.tipo === "suspensao_medicamento" ? "Suspender" : "Iniciar"} ${m.principioAtivo} no prazo, conforme a prescrição feita ao pedir.`
+        : itemText(i)
+      antecedencia.push({ text: text + startDay(daysBefore(i), examAt), source: m ? drugSource(i) : standardSource(i), highlight: !!m && i.indispensavel })
+      if (!m && i.indispensavel) handoffItems.add(i.texto)
+    }
+  } else {
+    for (const s of registered.filter(s => AHEAD.test(s) && !(FASTING.test(s) && !MEDICATION.test(s)))) {
+      if (DIABETES.test(s) && !conditions.diabetico) continue
+      const text = MEDICATION.test(s) && child ? "Iniciar no prazo o medicamento do preparo prescrito pelo médico (dose para criança não documentada)." : MEDICATION.test(s) ? `Iniciar no prazo (medicamento prescrito): ${s}` : s
+      antecedencia.push({ text, source: src, highlight: MEDICATION.test(s) })
+    }
   }
   if (isCT) antecedencia.push({ text: "O setor de TC confirma com o andar só na véspera: preparos que começam antes disso precisam ser iniciados pelo andar sem esperar essa ligação.", source: cite({ sourceId: "orientacoes-tc-rm", locator: "P63; fluxograma — hipótese H1 a validar" }) })
   if (isMRI) antecedencia.push(fromSourced(flow.flows.ressonancia_magnetica.steps[1]))
   if (!antecedencia.length) antecedencia.push({ text: "Nenhum preparo com antecedência (48h, antevéspera ou véspera) registrado no cadastro para este exame.", source: pending ? CATALOG_GAP : src })
 
   // 3. Jejum
-  const facts = preparo ? factsForExam(exam, preparo).filter(f => f.topic === "fasting") : []
+  const stdFasting = std.filter(i => i.tipo === "jejum")
   const unreconciledMRI = exam.preparo_id === "rm_contraste"
-  if (facts.length) {
-    for (const f of facts) jejum.push({ text: f.text, source: `${f.sourceTitle} — ${f.locator} (${PENDING})` })
+  if (stdFasting.length) {
+    for (const i of stdFasting) jejum.push({ text: itemText(i) + fastingTime(i, examAt), source: standardSource(i), highlight: i.estado === "conflito-pendente" })
+    handoffItems.add(stdFasting.length > 1 ? "Jejum conforme a folha indicada pelo setor (há folhas divergentes)" : stdFasting[0].texto)
+  } else if (facts.length) {
+    for (const f of facts) jejum.push({ text: f.text + fastingTime(f.text, examAt), source: `${f.sourceTitle} — ${f.locator} (${PENDING})` })
   } else if (!unreconciledMRI) {
-    for (const s of registered.filter(s => FASTING.test(s))) jejum.push({ text: s, source: src })
+    for (const s of registered.filter(s => FASTING.test(s))) jejum.push({ text: s + fastingTime(s, examAt), source: src })
   }
   if (!jejum.length) {
     jejum.push({ text: unreconciledMRI
@@ -278,8 +388,23 @@ export function buildInpatientChecklist(sigla: string, conditions: PatientCondit
     { id: "informar_setor", title: "Informar ao setor", responsible: "Enfermagem do andar", items: informar },
   ]
 
+  const marked = Object.entries(conditions).filter(([k, v]) => v !== undefined && v !== false && !["pesoKg", "idade"].includes(k)).map(([k]) => k)
+  if (conditions.pesoKg) marked.push(`peso ${conditions.pesoKg} kg`)
+  if (conditions.idade !== undefined) marked.push(`idade ${conditions.idade} anos`)
+  if (!stdFasting.length) for (const i of jejum.filter(i => !/recalcular/i.test(i.text))) handoffItems.add(i.text.split(" → ")[0])
+  if (!stdDrugs.length) for (const i of aoPedir.filter(i => i.highlight)) handoffItems.add(i.text.split(" Confirmar dose")[0])
+  const handoff: Handoff = {
+    situacao: `Paciente internado para ${exam.nome} (${exam.sigla})${examAt ? `, exame em ${day(examAt)} às ${clock(examAt)}` : ""}.`,
+    historico: `Condições informadas: ${marked.length ? marked.join(", ") : "nenhuma marcada"}.`,
+    avaliacao: [...handoffItems],
+    recomendacao: `Se algum item indispensável não foi feito, avisar o setor (${phoneFor(exam.modalidade)}) antes de enviar o paciente, para remarcar ou ajustar o horário.`,
+    source: HANDOFF_SOURCE,
+  }
+
   return {
     exam: { nome: exam.nome, sigla: exam.sigla, modalidade: exam.modalidade },
+    ...(examAt ? { examAt: `${day(examAt)} às ${clock(examAt)}` } : {}),
+    handoff,
     alerts,
     sections: sections.filter(s => s.items.length),
     flow: inpatientFlow(exam.modalidade),
@@ -292,7 +417,7 @@ export function buildInpatientChecklist(sigla: string, conditions: PatientCondit
 export function checklistToText(c: InpatientChecklist): string {
   const lines = [
     "CHECKLIST DE PREPARO — PACIENTE INTERNADO",
-    `Exame: ${c.exam.nome} (código AGHU: ${c.exam.sigla})`,
+    `Exame: ${c.exam.nome} (código AGHU: ${c.exam.sigla})${c.examAt ? ` — ${c.examAt}` : ""}`,
     "",
   ]
   if (c.alerts.length) {
@@ -303,8 +428,12 @@ export function checklistToText(c: InpatientChecklist): string {
   for (const s of c.sections) {
     lines.push(`${s.title.toUpperCase()} — ${s.responsible}`)
     for (const i of s.items) lines.push(`[ ] ${i.highlight ? "(!) " : ""}${i.text}`, `    Fonte: ${i.source}`)
-    lines.push("")
+    lines.push("    Conferido por: ____________________  às __:__", "")
   }
+  const h = c.handoff
+  lines.push("PASSAGEM PARA O SETOR DE IMAGEM (SBAR)", `S — ${h.situacao}`, `B — ${h.historico}`, "A — Preparo:")
+  for (const a of h.avaliacao) lines.push(`    [ ] feito  [ ] não feito — ${a}`)
+  lines.push(`R — ${h.recomendacao}`, `    Fonte: ${h.source}`, "")
   lines.push(`Contato do setor: ${c.contact}`, "Responsável pela checagem: ____________________   Data: ___/___/_____", "", c.disclaimer)
   return lines.join("\n")
 }
