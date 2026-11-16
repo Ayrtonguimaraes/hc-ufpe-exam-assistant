@@ -62,7 +62,10 @@ export function composeAnswer(message: string, candidates: Exame[], data: Prepar
   let usedFacts = factSets[0] ?? []
   // RM com contraste: as condições de jejum do cadastro herdado não foram reconciliadas; as demais instruções não medicamentosas podem ser mostradas.
   const mriContrast = matched.some(e => e.preparo_id === 'rm_contraste')
-  let sentences = documented ? usedFacts.map(f => evidenceText(f, profile)) : safeSentences(p.orientacoes)
+  // A group registered as "ok" keeps its inherited instructions for exams that no documentary fact covers
+  // (e.g. the other exams of the esophagus group, whose fact applies only to RXESO).
+  const keepInherited = documented && p.status === 'ok' && !usedFacts.length
+  let sentences = documented ? [...usedFacts.map(f => evidenceText(f, profile)), ...(keepInherited ? safeSentences(p.orientacoes) : [])] : safeSentences(p.orientacoes)
   if (mriContrast) sentences = sentences.filter(s => !/jeju/i.test(s))
   if (specificQuestion) {
     sentences = sentences.filter(s => (/jeju/.test(asked) && /jeju/i.test(s)) || (/bexiga/.test(asked) && /bexiga/i.test(s)) || (/cheg|antecedencia/.test(asked) && /antecedencia|chegar|comparecer/i.test(normalize(s))))

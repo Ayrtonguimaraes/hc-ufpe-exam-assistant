@@ -175,3 +175,13 @@ it('enema pediátrico mantém apenas o jejum herdado e encaminha a confirmação
  expect(response.reply).not.toMatch(/não precisa realizar preparo|dispensa preparo|jejum.{0,30}12\s*(?:h|horas)|Ducolax|Dulcolax|20h|21h/i)
  expect(response.sources.flatMap(source => source.evidence ?? [])).toEqual([])
 })
+
+it('exames do grupo de esôfago sem fato próprio mantêm o jejum herdado de 6 horas', () => {
+  for (const code of ['RXEED', 'RXTXC', 'RXDEG']) {
+    const exam = exams.find(exam => exam.sigla === code)!
+    expect(exam.preparo_id).toBe('rx_esofago')
+    const response = composeAnswer('Qual o jejum?', [exam], preparations, 'patient')!
+    expect(response.reply, code).toMatch(/jejum de 6 horas/i)
+    expect(response.reply, code).not.toMatch(/Não tenho essa informação específica/)
+  }
+})
