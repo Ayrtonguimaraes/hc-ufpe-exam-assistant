@@ -19,13 +19,13 @@ test("as regras detectam contradições e omissões representativas", () => {
   const dose = rules["GT-19"].find(r => r.forbidden)!
   expect(new RegExp(dose.pattern).test(normalized("Norfloxacino 400 mg"))).toBe(true)
   expect(new RegExp(dose.pattern).test(normalized("Confirme a dose com o médico"))).toBe(false)
-  expect(dataset.cases).toHaveLength(36)
-  expect(new Set(dataset.cases.map(c => c.id)).size).toBe(36)
+  expect(dataset.cases).toHaveLength(40)
+  expect(new Set(dataset.cases.map(c => c.id)).size).toBe(40)
   expect(dataset.cases.every(c => c.profile && c.question && c.expected && c.prohibited && rules[c.id])).toBe(true)
   expect(Object.values(expectedPreparos).every(id => id in preparos.preparos)).toBe(true)
 })
 
-test("registra os 36 casos pela API real sem navegador", async () => {
+test("registra os casos pela API real sem navegador", async () => {
   const mode = process.env.EVAL_MODE ?? "fallback"
   if (!["fallback", "llm"].includes(mode)) throw new Error("EVAL_MODE deve ser fallback ou llm")
   const key = process.env.CLAUDE_API_KEY
@@ -68,6 +68,8 @@ test("registra os 36 casos pela API real sem navegador", async () => {
   writeFileSync(`evaluation/reports/${mode}.md`, md.join("\n") + "\n")
   console.log(`Triagem ${mode}: ${passed}/${results.length} sem falhas objetivas; ${results.length - passed}/${results.length} para revisão. Relatórios: evaluation/reports/${mode}.{json,md}`)
   expect(results).toHaveLength(dataset.cases.length)
+  // New documentary cases enforce safety while the original baseline remains reviewable.
+  expect(results.filter(r => r.id.startsWith("DOC-") && r.failedChecks.length).map(r => ({ id: r.id, failedChecks: r.failedChecks }))).toEqual([])
   // Baseline intentionally records existing failures without treating them as an infrastructure error.
   if (process.env.EVAL_STRICT === "1") expect(results.filter(r => r.failedChecks.length).map(r => r.id)).toEqual([])
 })

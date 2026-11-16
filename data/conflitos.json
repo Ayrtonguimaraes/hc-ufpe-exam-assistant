@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "scope": "Registro de decisões documentais pendentes da UDI, separado da composição de respostas ao paciente. Nenhuma alternativa representa orientação escolhida ou homologação clínica.",
+  "postUdiUpdateRule": "Após decisão documentada da UDI na PRO-34, atualizar orientacoes, observacoes, status e fact_ids do grupo pertinente em data/preparos.json e o fato com sua proveniência em data/documentary-evidence.json. Registrar a decisão e a data em decision e resolvedAt e mudar o conflito para resolvido. Se a decisão alterar o vínculo de um exame, atualizar data/exam-preparation-associations.json e executar npm run ingest para regenerar data/exames.json.",
+  "conflitos": [
+    {
+      "id": "rx-enema-opaco-pediatrico-preparo",
+      "subject": "Preparo pediátrico para enema opaco",
+      "preparo_ids": ["rx_enema_opaco_crianca", "rx_enema_opaco_adulto"],
+      "status": "pending-udi",
+      "linearIssue": "PRO-34",
+      "impact": "A UDI deve definir a orientação e o escopo por idade, inclusive a fronteira entre os grupos adulto e criança.",
+      "alternatives": [
+        {
+          "sourceId": "exames-escaneados",
+          "locator": "página 1, anotação manuscrita e seções de medicação e dia do exame",
+          "quote": "Criança a partir de 7 anos / ÀS 20h TOMAR 01 COMPRIMIDO DE DUCOLAX. / ÀS 21h - 01 COMPRIMIDO DE DUCOLAX / JEJUM DE 06h.",
+          "text": "Folha anotada para criança a partir de 7 anos descreve bisacodil (DUCOLAX) e jejum de 6 horas. Vigência e faixa etária dependem de decisão da UDI."
+        },
+        {
+          "sourceId": "exames-escaneados",
+          "locator": "página 4, observação ao fim das duas cópias do preparo de enema opaco",
+          "quote": "OBS: SE FOR CRIANÇA, NÃO PRECISA REALIZAR PREPARO.",
+          "text": "Folha de enema opaco dispensa preparo para criança sem delimitar idade. A UDI deve decidir como compatibilizar as folhas."
+        }
+      ]
+    },
+    {
+      "id": "us-abdomen-preparo-e-contato",
+      "subject": "Jejum, escopo e contato do ultrassom abdominal",
+      "preparo_ids": ["us_abdômen", "us_pelvica_vias_urinarias"],
+      "status": "pending-udi",
+      "linearIssue": "PRO-34",
+      "scopeNote": "Os grupos indicam somente possível escopo a decidir pela UDI, sem estender a folha abdominal a todos os exames pélvicos ou de vias urinárias.",
+      "currentCatalogContact": {
+        "value": "(81) 2126-3884",
+        "origin": "data/preparos.json, grupo us_abdômen",
+        "note": "Contato cadastrado, sem localizador ou citação documental demonstrados. A UDI deve confirmar sua vigência frente ao 3898 da folha escaneada."
+      },
+      "impact": "A UDI deve confirmar duração do jejum, orientações medicamentosas e de água/bexiga, escopo e telefone vigente.",
+      "alternatives": [
+        {
+          "sourceId": "orientacoes-exames",
+          "locator": "parágrafos 30–35",
+          "quote": "EXAMES: Abdômen total, Abdômen superior, Biopsia hepática / Jejum de 4 a 6h / EXAMES: Abdomen total / Utilizar luftal (simeticona) 40 gotas de 6 em 6 horas no dia que antecede ao exame e na manhã do exame. / EXAMES: Vias urinárias, Abdômen total, Ultrassonografia pélvica abdominal / O paciente esteja com a bexiga cheia, no setor ele também será orientado a ingerir água para tal.",
+          "text": "Documento descreve jejum de 4 a 6 horas e seções próprias para simeticona e bexiga cheia, com listas de exames distintas. A UDI deve compatibilizar duração e escopo com a folha escaneada."
+        },
+        {
+          "sourceId": "scanned-2026-11-09",
+          "locator": "página 1, cabeçalho e recomendações da folha de ultrassonografia abdominal, duas cópias",
+          "quote": "(81) 2126 3898 / 2126 3633 / MANTER JEJUM DURANTE AS 8 HORAS QUE ANTECEDEM O EXAME. / UTILIZAR LUFTAL (SIMETICONA) 40 GOTAS DE 6 EM 6 HORAS NO DIA QUE ANTECEDE AO EXAME E NA MANHÃ DO EXAME. / AO CHEGAR NO HOSPITAL E SE DIRIGIR AO SETOR DE REALIZAÇÃO DO EXAME TOMAR ÁGUA QUANDO A RECEPCIONISTA AVISAR. / SE POSSÍVEL MANTER A BEXIGA CHEIA ATÉ A REALIZAÇÃO DO EXAME.",
+          "text": "Folha abdominal descreve jejum de 8 horas, simeticona, água e bexiga cheia, com contato 3898. Vigência e escopo dependem de confirmação da UDI."
+        }
+      ]
+    },
+    {
+      "id": "rx-histerossalpingografia-versao-vigente",
+      "subject": "Confirmação da versão vigente de histerossalpingografia",
+      "preparo_ids": ["rx_histerossalpingografia"],
+      "status": "pending-udi",
+      "linearIssue": "PRO-34",
+      "impact": "A anotação manuscrita último exige confirmação documental de vigência pela UDI antes da incorporação de orientações. Não foi demonstrada uma segunda versão homologada.",
+      "alternatives": [
+        {
+          "sourceId": "scanned-2026-11-09",
+          "locator": "página 6, anotação manuscrita junto ao título",
+          "quote": "último",
+          "text": "A anotação pode indicar uma versão pretendida como atual, hipótese cuja validade a UDI precisa confirmar."
+        },
+        {
+          "sourceId": "scanned-2026-11-09",
+          "locator": "página 6, título impresso e seção antes do exame",
+          "quote": "PREPARO HISTEROSSALPINGOGRAFIA / Jejum de 03 horas antes do exame.",
+          "text": "O conteúdo impresso permanece como documento de vigência não confirmada. A UDI deve identificar formalmente qual versão deve orientar o cadastro."
+        }
+      ]
+    }
+  ]
+}
