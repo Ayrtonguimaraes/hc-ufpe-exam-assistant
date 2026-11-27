@@ -55,5 +55,5 @@ Converter para FHIR no futuro exige mapear os campos. Os nomes dos elementos FHI
 ## Estado atual (piloto)
 
 - **Cobertura:** medicamentos de todos os exames e as folhas escaneadas recebidas em 09/11, incluindo raio-X contrastado, ultrassom abdominal e biópsia pulmonar.
-- **Chat:** ainda responde a partir de `preparos.json` e `documentary-evidence.json`. Passar a ler este formato é o próximo passo.
+- **Chat:** já lê `orientacoes-preparo.json` para os grupos migrados e para folhas de exames que não possuem código no catálogo. Os demais grupos continuam em `preparos.json` e `documentary-evidence.json` durante a migração.
 - **Validação:** nenhum item está validado pela UDI.

@@ -18,7 +18,7 @@ Patients and clinical teams often don't know how to prepare for an imaging exam,
   - **Professional** — technical, operational language (protocols, contraindications, request flow, **AGHU codes**).
 - Offers a **guided exam picker**: instead of typing, the user drills down by modality → exam → variant (contrast / sedation / side), so it works even when you don't know the exact exam name.
 - Handles special cases: the **X-ray request flow** (via AGHU system), the **list of contrast X-ray exams** that require preparation, and a **fallback** when a specific preparation isn't registered yet (it tells the user to contact the sector instead of guessing).
-- **Inpatient module (professional profile):** questions about an inpatient (AGHU request, call the day before, prescription sent along, venous access, conditions to report) are answered from the documented CT/MRI/US flow (`data/inpatient-flow.json`). The **Checklist do internado** panel turns an exam plus the patient's conditions (diabetes, contrast allergy, sedation, isolation, O2, hemodialysis, weight, age) into a checklist split by who acts and when — on request (physician), 48h/day before, fasting, before going down (ward nursing) and what to report to the sector — with the source of every item and a "validação pendente" notice. It can be copied or printed to attach to the prescription. No AGHU integration and no patient data.
+- **Inpatient module (professional profile):** questions about an inpatient (AGHU request, call the day before, prescription sent along, venous access, conditions to report) are answered from the documented CT/MRI/US flow (`data/inpatient-flow.json`). The **Checklist do internado** panel turns an exam plus the patient's conditions (diabetes, contrast allergy, sedation, isolation, O2, hemodialysis, weight, age) into a checklist split by who acts and when — on request (physician), 48h/day before, fasting, before going down (ward nursing) and what to report to the sector — with the source of every item and a "validação pendente" notice. It can be copied or printed to attach to the prescription. There is no AGHU integration or patient identifier field; the selected conditions are still health-related data and require an approved usage policy.
 - Keeps **follow-up context**: a question like "and which documents do I bring?" reuses the exam from the recent conversation.
 - Always cites the **sources** (exams) used to build each answer.
 - **Persists conversations** locally so the user can revisit previous chats.
@@ -27,20 +27,21 @@ Patients and clinical teams often don't know how to prepare for an imaging exam,
 ## How it works
 
 1. The user picks a profile (patient or professional) on the home page.
-2. The user types a question **or** walks through the guided picker (modality → exam → variant), which builds the question for them.
-3. Each question is normalized and matched against the exam database (`searchExames`) by acronym, name, common name, and synonyms. If the current message doesn't name an exam, recent chat history is used to resolve it.
-4. The matched exams, general guidance, contacts, and any special layers (X-ray flow / list) are assembled into a **strict, layered context** prompt.
-5. The context plus a profile-specific system prompt (with hard anti-hallucination rules) is sent to Claude.
-6. The reply is returned with the cited sources and stored in the browser.
+2. The user types a question **or** chooses an exam in the guided picker. A picker selection sends the catalog identifier directly to the API.
+3. Deterministic policies first handle known exams, medication questions, service restrictions, ambiguities, inpatient flow and standardized preparation items.
+4. For eligible free text, Groq may interpret the question into validated fields. It does not write the answer; the catalog renderer does.
+5. Residual questions may use Claude with a strict documentary context. Missing keys, invalid model output or provider errors fall back to deterministic behavior.
+6. The reply and its evidence are returned and saved in the browser's `localStorage`.
 
 ### Knowledge base
 
-The exam catalog is generated from the official spreadsheet (`docs-exames-udi-aghu.md`) by a deterministic ingest script into `data/exames.json`. Preparation guidance lives in `data/preparos.json`.
+The exam catalog is generated from the official spreadsheet (`docs-exames-udi-aghu.md`) by a deterministic ingest script into `data/exames.json`. New preparation guidance is stored as atomic, source-linked items in `data/orientacoes-preparo.json`; legacy coverage remains in `data/preparos.json` and `data/documentary-evidence.json` while migration continues.
 
 | Data | Count |
 |------|-------|
 | Exams (`data/exames.json`) | **814** |
-| Preparation entries (`data/preparos.json`) | 14 confirmed (`ok`), 1 partial, 6 pending |
+| Legacy preparation groups (`data/preparos.json`) | 23: 12 `ok`, 4 partial, 7 pending |
+| Standardized atomic items (`data/orientacoes-preparo.json`) | 50: 29 documentary, 17 conflicting, 4 without located source; none approved by UDI |
 
 Exams by modality:
 
@@ -54,7 +55,11 @@ Exams by modality:
 | Mammography (`mamografia`) | 6 |
 | Bone densitometry (`densitometria_ossea`) | 4 |
 
-> Every exam carries its **AGHU code** (`sigla`), surfaced only to the professional profile. Only exams with confirmed/partial preparation guidance appear as clickable options in the guided picker.
+> Every exam carries its **AGHU code** (`sigla`), surfaced only to the professional profile. The guided picker lists the full catalog, including exams whose preparation is still pending.
+
+## Current architecture and conversation data
+
+See [Architecture and conversation data](docs/arquitetura-atual-e-dados-de-conversa.md) for the implemented request flow, local history lifecycle, third-party data flows, current limitations and the retention/access decisions that still require institutional approval.
 
 ## Technologies
 
@@ -66,6 +71,7 @@ Exams by modality:
 **AI**
 - [Vercel AI SDK](https://sdk.vercel.ai) (`ai`)
 - [`@ai-sdk/anthropic`](https://sdk.vercel.ai/providers/ai-sdk-providers/anthropic) — Claude (`claude-sonnet-4-5`)
+- Groq Chat Completions API — structured question interpretation (`openai/gpt-oss-120b`)
 
 **UI & styling**
 - [Tailwind CSS](https://tailwindcss.com) 4
@@ -88,7 +94,7 @@ app/
   chat/
     page.tsx
     chat-client.tsx        # Chat UI (input + guided picker + sidebar)
-  api/chat/route.ts        # Chat endpoint: resolve → layered context → Claude (+ fallback)
+  api/chat/route.ts        # Route selection, deterministic policies and optional model calls
 components/
   guided-exam-picker.tsx   # Modality → exam → variant picker
   chat-sidebar.tsx         # Saved conversations
@@ -100,11 +106,16 @@ lib/
   exam-options.ts          # Modalities & exam options for the picker (+ name prettifying)
   exam-grouping.ts         # Groups exam variants (contrast/sedation/side) for the picker
   chat-storage.ts          # localStorage persistence (7-day TTL, capped, auto-pruned)
+  question-interpreter.ts  # Optional Groq interpretation into validated fields
+  standard-answer.ts       # Answers backed by standardized atomic preparation items
   mock-response.ts         # Deterministic fallback when AI is unavailable
   types.ts                 # Shared types
 data/
   exames.json              # Exam catalog (generated by ingest)
-  preparos.json            # Preparation guidance + general info + X-ray flow
+  fontes.json              # Registry of documentary sources and hashes
+  orientacoes-preparo.json # Atomic preparation items with source and validation state
+  conflitos.json           # Documentary conflicts awaiting a decision
+  preparos.json            # Legacy preparation groups still in migration
 scripts/
   ingest-exames.mjs        # docs-exames-udi-aghu.md → data/exames.json (deterministic)
   verify-grouping.mjs      # Sanity-check variant grouping
@@ -114,11 +125,12 @@ docs-exames-udi-aghu.md    # Source spreadsheet (exam catalog + AGHU codes)
 
 ## Getting Started
 
-Set the Claude API key (optional — without it the app falls back to deterministic responses):
+Provider keys are optional. Without them, the app keeps its deterministic responses:
 
 ```bash
 # .env.local
 CLAUDE_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
 ```
 
 Run the development server:
@@ -142,10 +154,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run ingest:check` | Parse + validate + report, without writing |
 | `npm run audit:catalog` | Audit catalog, preparation links and source conflicts; regenerate JSON/Markdown reports |
 | `npm run audit:catalog:check` | Verify reports are current and fail on structural blockers |
+| `npm run data:check` | Validate standardized preparation data and the generated UDI review |
+| `npm run data:report` | Regenerate standardized-data reports |
+| `npm run eval:dev` | Run the versioned development evaluation set |
 | `npm run test:e2e` | Run the Playwright end-to-end suite |
 | `npm run test:e2e:ui` | Run the E2E suite in Playwright UI mode |
 
-> The E2E suite hits the **real** AI via `/api/chat`, so it needs `CLAUDE_API_KEY` in `.env.local`.
+> Most tests exercise deterministic paths. Scenarios intended to exercise a real provider require the corresponding environment key and must be identified separately from fallback runs.
 
 ## Disclaimer
 
