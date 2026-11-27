@@ -2,6 +2,8 @@
 
 **Documento da Solução Final**
 
+> **Documento histórico de proposta.** Partes sobre Gemini, RAG, embeddings, quantidade de exames e privacidade não descrevem mais a implementação publicada. A arquitetura vigente, o fluxo entre provedores e o tratamento atual das conversas estão em [`arquitetura-atual-e-dados-de-conversa.md`](arquitetura-atual-e-dados-de-conversa.md). Este arquivo é preservado como registro do planejamento inicial.
+
 ---
 
 ## 1. Visão Geral
